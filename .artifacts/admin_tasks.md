@@ -1,0 +1,8 @@
+- `[x]` Create `src/lib/mock-api/db.ts` (localStorage wrapper)
+- `[x]` Modify `src/lib/mock-api/mock-data.ts` to integrate with `db.ts`
+- `[x]` Modify `src/lib/mock-api/index.ts` to support CRUD operations
+- `[x]` Create `src/store/admin-store.ts`
+- `[x]` Refactor `src/app/admin/users/page.tsx` and create `UsersClient.tsx`
+- `[x]` Refactor `src/app/admin/classes/page.tsx` and create `ClassesClient.tsx`
+- `[x]` Refactor Dashboard and Support pages (Financials/Reports/Settings can remain static reads for now)
+- `[x]` Verify integrations cross-profile

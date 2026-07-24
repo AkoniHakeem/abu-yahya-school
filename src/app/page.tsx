@@ -22,8 +22,8 @@ export default function LandingPage() {
               Join thousands of students worldwide in preserving tradition through structured, professional online learning with expert tutors.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
-              <Link className="bg-primary text-on-primary px-8 py-4 rounded-lg font-label-sm text-label-sm text-center shadow-ambient hover:bg-primary-container transition-all hover:-translate-y-1" href="/signup">
-                Start Learning Today
+              <Link className="bg-primary text-on-primary px-8 py-4 rounded-lg font-label-sm text-label-sm text-center shadow-ambient hover:bg-primary-container transition-all hover:-translate-y-1" href="/login">
+                Get Started
               </Link>
               <Link className="border border-secondary text-secondary px-8 py-4 rounded-lg font-label-sm text-label-sm text-center hover:bg-secondary/5 transition-all" href="#classes">
                 Explore Curriculum
@@ -209,8 +209,8 @@ export default function LandingPage() {
                     Full portal access
                   </li>
                 </ul>
-                <Link href="/signup" className="w-full bg-primary text-on-primary py-3 rounded-lg font-label-sm text-label-sm hover:bg-primary-container transition-colors shadow-sm inline-block text-center">
-                  Select Personal
+                <Link href="/login" className="w-full bg-primary text-on-primary py-3 rounded-lg font-label-sm text-label-sm hover:bg-primary-container transition-colors shadow-sm inline-block text-center">
+                  Login to Enroll
                 </Link>
               </div>
 

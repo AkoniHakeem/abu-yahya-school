@@ -1,0 +1,8 @@
+- `[x]` Initialize Zustand Store (`src/store/tutor-store.ts`)
+- `[x]` Update mock data (`mock-data.ts` and `index.ts`)
+- `[x]` Refactor Assignments Grading Page (`src/app/tutor/assignments/grade/page.tsx`)
+- `[x]` Refactor Scheduling Page (`src/app/tutor/scheduling/page.tsx`)
+- `[x]` Refactor Classroom Page (`src/app/tutor/classroom/page.tsx`)
+- `[x]` Refactor Dashboard Page (`src/app/tutor/dashboard/page.tsx`)
+- `[x]` Refactor Dashboard Page (`src/app/tutor/dashboard/page.tsx`)
+- `[x]` Verify changes locally

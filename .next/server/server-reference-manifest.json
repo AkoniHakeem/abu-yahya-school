@@ -1,1 +1,21 @@
-{"node":{"00e2e0b000440cc8623740eb1a92d20a0a1b1920e8":{"workers":{"app/login/page":{"moduleId":"98170","async":false},"app/signup/page":{"moduleId":"98170","async":false}},"layer":{"app/login/page":"rsc","app/signup/page":"rsc"},"filename":"app/actions/auth.ts","exportedName":"logoutUser"},"40123ab0ea58d99c30e798386a3fff74669edf3790":{"workers":{"app/login/page":{"moduleId":"98170","async":false},"app/signup/page":{"moduleId":"98170","async":false}},"layer":{"app/login/page":"rsc","app/signup/page":"rsc"},"filename":"app/actions/auth.ts","exportedName":"loginUser"},"40d0293e916d2dec9118c8e475d0da2522ed2f0643":{"workers":{"app/login/page":{"moduleId":"98170","async":false},"app/signup/page":{"moduleId":"98170","async":false}},"layer":{"app/login/page":"rsc","app/signup/page":"rsc"},"filename":"app/actions/auth.ts","exportedName":"registerUser"}},"edge":{},"encryptionKey":"0VfVJ9m7DSOI19c+gH7zxdqRdaUwzrMvt5SjATW6VSU="}
+{
+  "node": {
+    "60c7dd6372364442c29cab5fba98dd7be49ba7c17a": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": "[project]/.next-internal/server/app/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/actions/auth.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "loginUser",
+          "filename": "src/app/actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/login/page": "action-browser"
+      },
+      "filename": "src/app/actions/auth.ts",
+      "exportedName": "loginUser"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "0VfVJ9m7DSOI19c+gH7zxdqRdaUwzrMvt5SjATW6VSU="
+}

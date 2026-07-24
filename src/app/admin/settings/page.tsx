@@ -12,15 +12,8 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // We have an explicit admin mock now.
         const response = await fetchAPI('/api/admin/settings');
-        
-        // Customizing the mock response slightly for admin
-        setData({
-          ...response.adminProfile,
-          name: 'Admin User',
-          email: 'admin@abuyahya.com'
-        });
+        setData(response.profileData);
       } catch (error) {
         console.error('Failed to load settings', error);
       } finally {
@@ -31,7 +24,11 @@ export default function AdminSettingsPage() {
   }, []);
 
   const handleSave = async (updatedProfile: any) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await fetchAPI('/api/admin/settings', {
+      method: 'PUT',
+      body: JSON.stringify(updatedProfile),
+    });
+    setData(updatedProfile);
     console.log('Saved admin profile:', updatedProfile);
   };
 
@@ -46,7 +43,7 @@ export default function AdminSettingsPage() {
            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/20">
               <img 
                 className="w-full h-full object-cover" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgUWIh3NShjVW_YjjZngKemTnbJ7MsfVwKj7VkiPmDXtPKM7ciOvAIuIsMwVZrecyiKL5FVfBhiko4L1U3BlDYeFk0v-Vao1a4Q3FzXBaWL3yxch6CXttNfRym9j87OOewN4U856hYjWwxX831eWkjojsQxTAcO8bDVxsZnX-0bX6qtKUlE3iUO_pXrbxVIWqcihmSsfUe1B928US4jMabESrNpTjAqUo_pCj86iZZg9eeCid8NPWQ"
+                src={data?.avatar || "/avatars/default.png"}
                 alt="Admin Profile"
               />
             </div>

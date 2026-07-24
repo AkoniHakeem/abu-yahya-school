@@ -19,20 +19,31 @@ export const enrolledCourses = [
     progress: 75,
     thumbnail: "menu_book",
     nextLesson: "Nouns and their Types",
-    totalLessons: 24,
-    completedLessons: 18,
-    status: "active"
+    totalLessons: 4,
+    completedLessons: 3,
+    status: "active",
+    lessons: [
+      { id: "L1", title: "Introduction to Nahw", duration: "10 mins", isCompleted: true, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { id: "L2", title: "The Arabic Alphabet", duration: "15 mins", isCompleted: true, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { id: "L3", title: "Parts of Speech", duration: "20 mins", isCompleted: true, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { id: "L4", title: "Nouns and their Types", duration: "25 mins", isCompleted: false, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk", isLockedByTutor: true, lockMessage: "Please wait for Ustadh Omar to grade your previous assignment before proceeding." }
+    ]
   },
   {
     id: "CRS-102",
     title: "Quranic Recitation (Tajweed)",
     tutor: "Sheikh Abdullah",
-    progress: 40,
+    progress: 33,
     thumbnail: "auto_stories",
     nextLesson: "Rules of Noon Sakinah",
-    totalLessons: 30,
-    completedLessons: 12,
-    status: "active"
+    totalLessons: 3,
+    completedLessons: 1,
+    status: "active",
+    lessons: [
+      { id: "L1", title: "Introduction to Tajweed", duration: "12 mins", isCompleted: true, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { id: "L2", title: "Rules of Noon Sakinah", duration: "18 mins", isCompleted: false, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { id: "L3", title: "Rules of Meem Sakinah", duration: "22 mins", isCompleted: false, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" }
+    ]
   },
   {
     id: "CRS-103",
@@ -41,9 +52,13 @@ export const enrolledCourses = [
     progress: 100,
     thumbnail: "forum",
     nextLesson: null,
-    totalLessons: 15,
-    completedLessons: 15,
-    status: "completed"
+    totalLessons: 2,
+    completedLessons: 2,
+    status: "completed",
+    lessons: [
+      { id: "L1", title: "Greetings and Introductions", duration: "15 mins", isCompleted: true, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { id: "L2", title: "At the Marketplace", duration: "20 mins", isCompleted: true, videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk" }
+    ]
   }
 ];
 

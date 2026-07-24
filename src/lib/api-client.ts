@@ -32,13 +32,29 @@ export async function fetchAPI(endpoint: string, options: FetchOptions = {}): Pr
     headers.set('Content-Type', 'application/json');
   }
 
-  // Example: Attach auth token if available (commented out until auth is implemented)
-  // const token = localStorage.getItem('token');
-  // if (token) {
-  //   headers.set('Authorization', `Bearer ${token}`);
-  // }
+  let token = undefined;
+  if (typeof window !== 'undefined') {
+    // client-side
+    const match = document.cookie.match(new RegExp('(^| )auth_token=([^;]+)'));
+    if (match) token = match[2];
+  } else {
+    // server-side
+    try {
+      const { cookies } = require('next/headers');
+      const cookieStore = await cookies();
+      const authCookie = cookieStore.get('auth_token');
+      if (authCookie) token = authCookie.value;
+    } catch (e) {
+      // ignore or handle if needed
+    }
+  }
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
 
   const response = await fetch(url, {
+    cache: 'no-store',
     ...options,
     headers,
   });

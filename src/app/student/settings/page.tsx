@@ -29,11 +29,18 @@ export default function StudentSettingsPage() {
   }, []);
 
   const handleSave = async (updatedProfile: any) => {
-    // In a real app, this would be a PUT or PATCH request
-    // await fetchAPI('/api/student/settings', { method: 'PUT', body: JSON.stringify(updatedProfile) });
+    await fetchAPI('/api/student/settings', {
+      method: 'PUT',
+      body: JSON.stringify(updatedProfile),
+    });
     
-    // Simulate network delay for saving
-    await new Promise(resolve => setTimeout(resolve, 500));
+    setData((prev: any) => ({
+      ...prev,
+      profileData: {
+        ...prev.profileData,
+        ...updatedProfile
+      }
+    }));
     console.log('Saved profile:', updatedProfile);
   };
 
@@ -49,6 +56,9 @@ export default function StudentSettingsPage() {
     <SettingsForm 
       initialProfile={{
         name: data.profileData.name,
+        firstName: data.profileData.firstName,
+        lastName: data.profileData.lastName,
+        middle: data.profileData.middle,
         email: data.profileData.email,
         timezone: data.profileData.timezone,
         avatar: data.profileData.avatar

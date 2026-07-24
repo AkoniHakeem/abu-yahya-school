@@ -1,0 +1,5 @@
+- `[x]` Update `backend/src/admin/admin.controller.ts` with `PUT` endpoints
+- `[x]` Update `backend/src/admin/admin.service.ts` with `updateUser` and `updateClass` methods
+- `[x]` Update `src/store/admin-store.ts` with `updateUser` and `updateClass` actions
+- `[x]` Update `src/app/admin/users/UsersClient.tsx` to handle user editing
+- `[x]` Update `src/app/admin/classes/ClassesClient.tsx` to handle class editing

@@ -1,0 +1,15 @@
+- `[x]` Initialize NestJS project in `backend` directory
+- `[x]` Install dependencies (`@nestjs/typeorm`, `typeorm`, `pg`, `@nestjs/config`, `class-validator`, `class-transformer`)
+- `[x]` Setup Database configuration (`TypeOrmModule` and `.env`)
+- `[x]` Create `User` Entity
+- `[x]` Create `CourseClass` Entity 
+- `[x]` Create `SupportTicket` Entity
+- `[x]` Create `Transaction` Entity (Financials)
+- `[x]` Generate `AdminModule`
+- `[x]` Implement `AdminUsersController` & Service
+- `[x]` Implement `AdminClassesController` & Service
+- `[x]` Implement `AdminSupportController` & Service
+- `[x]` Implement `AdminFinancialsController` & Service
+- `[x]` Implement `AdminDashboardController` & Service
+- `[x]` Verify backend compilation and routes
+- `[x]` Wire Next.js frontend to proxy to NestJS backend

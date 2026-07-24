@@ -1,0 +1,9 @@
+- `[x]` Create `Assignment` Entity
+- `[x]` Register `Assignment` Entity in `app.module.ts`
+- `[x]` Generate `TutorModule`, `TutorController`, and `TutorService`
+- `[x]` Implement `TutorDashboardController` & Service
+- `[x]` Implement `TutorSchedulingController` & Service
+- `[x]` Implement `TutorAssignmentsController` & Service
+- `[x]` Implement `TutorStudentsController` & Service
+- `[x]` Implement `TutorEarningsController` & Service
+- `[x]` Verify backend compilation and routes

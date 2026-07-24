@@ -5,6 +5,9 @@ import React, { useState } from 'react';
 interface SettingsFormProps {
   initialProfile: {
     name: string;
+    firstName: string;
+    lastName: string;
+    middle?: string;
     email: string;
     timezone?: string;
     avatar?: string;
@@ -19,9 +22,11 @@ interface SettingsFormProps {
 }
 
 export default function SettingsForm({ initialProfile, role, activePlan, onSave }: SettingsFormProps) {
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState({ ...initialProfile, newPassword: '', confirmPassword: '' });
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -31,9 +36,26 @@ export default function SettingsForm({ initialProfile, role, activePlan, onSave 
     e.preventDefault();
     setIsSaving(true);
     setMessage(null);
+
+    if (profile.newPassword && profile.newPassword !== profile.confirmPassword) {
+      setMessage({ type: 'error', text: 'New passwords do not match.' });
+      setIsSaving(false);
+      return;
+    }
+
     try {
-      await onSave(profile);
+      const payload: any = { ...profile };
+      delete payload.confirmPassword;
+      if (!payload.newPassword) {
+        delete payload.newPassword;
+      } else {
+        payload.password = payload.newPassword;
+        delete payload.newPassword;
+      }
+
+      await onSave(payload);
       setMessage({ type: 'success', text: 'Settings saved successfully.' });
+      setProfile({ ...profile, newPassword: '', confirmPassword: '' });
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to save settings. Please try again.' });
     } finally {
@@ -65,31 +87,56 @@ export default function SettingsForm({ initialProfile, role, activePlan, onSave 
               <p className="text-sm text-on-surface-variant">Update your basic profile details.</p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1 flex flex-col gap-2">
-                <label htmlFor="name" className="text-sm font-medium text-on-surface">Full Name</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="firstName" className="text-sm font-medium text-on-surface">First Name</label>
                 <input 
                   type="text" 
-                  id="name" 
-                  name="name" 
-                  value={profile.name} 
+                  id="firstName" 
+                  name="firstName" 
+                  value={profile.firstName || ''} 
                   onChange={handleChange}
                   className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface"
                   required 
                 />
               </div>
-              <div className="flex-1 flex flex-col gap-2">
-                <label htmlFor="email" className="text-sm font-medium text-on-surface">Email Address</label>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="lastName" className="text-sm font-medium text-on-surface">Last Name</label>
                 <input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
-                  value={profile.email} 
+                  type="text" 
+                  id="lastName" 
+                  name="lastName" 
+                  value={profile.lastName || ''} 
                   onChange={handleChange}
                   className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface"
                   required 
                 />
               </div>
+              <div className="flex flex-col gap-2 sm:col-span-2">
+                <label htmlFor="middle" className="text-sm font-medium text-on-surface">Middle Name (Optional)</label>
+                <input 
+                  type="text" 
+                  id="middle" 
+                  name="middle" 
+                  value={profile.middle || ''} 
+                  onChange={handleChange}
+                  className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="email" className="text-sm font-medium text-on-surface">Email Address</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                value={profile.email} 
+                onChange={handleChange}
+                className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface opacity-50 cursor-not-allowed"
+                required 
+                readOnly
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -126,14 +173,69 @@ export default function SettingsForm({ initialProfile, role, activePlan, onSave 
           </form>
 
           {/* Password Section (Mock) */}
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient border border-outline-variant/30 flex flex-col gap-4">
+          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient border border-outline-variant/30 flex flex-col gap-6">
              <div className="flex flex-col gap-2">
               <h2 className="font-headline text-[20px] font-bold text-on-surface">Password & Security</h2>
-              <p className="text-sm text-on-surface-variant">Update your password to keep your account secure.</p>
+              <p className="text-sm text-on-surface-variant">Update your password to keep your account secure. Leave blank to keep your current password.</p>
             </div>
-            <button className="w-fit border border-outline-variant text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2 rounded-lg font-label-sm font-medium transition-colors">
-              Change Password
-            </button>
+            
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="flex-1 flex flex-col gap-2">
+                <label htmlFor="newPassword" className="text-sm font-medium text-on-surface">New Password</label>
+                <div className="relative">
+                  <input 
+                    type={showNewPassword ? "text" : "password"} 
+                    id="newPassword" 
+                    name="newPassword" 
+                    value={profile.newPassword} 
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {showNewPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col gap-2">
+                <label htmlFor="confirmPassword" className="text-sm font-medium text-on-surface">Confirm New Password</label>
+                <div className="relative">
+                  <input 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    id="confirmPassword" 
+                    name="confirmPassword" 
+                    value={profile.confirmPassword} 
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {showConfirmPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-outline-variant/30 flex justify-end">
+              <button 
+                type="submit" 
+                onClick={handleSubmit}
+                disabled={isSaving}
+                className="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSaving ? 'Saving...' : 'Update Password'}
+              </button>
+            </div>
           </div>
 
         </div>
@@ -154,7 +256,7 @@ export default function SettingsForm({ initialProfile, role, activePlan, onSave 
               </div>
             </div>
             <div>
-              <h3 className="font-headline text-[18px] font-bold text-on-surface mb-1">{profile.name}</h3>
+              <h3 className="font-headline text-[18px] font-bold text-on-surface mb-1">{profile.firstName || ''} {profile.lastName || ''}</h3>
               <p className="text-sm text-on-surface-variant capitalize">{role} Account</p>
             </div>
           </div>
