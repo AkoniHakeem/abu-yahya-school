@@ -3,3 +3,5 @@
 node_modules/
 .agents
 .vercel
+
+backend/
