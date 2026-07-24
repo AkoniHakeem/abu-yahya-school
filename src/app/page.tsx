@@ -148,102 +148,17 @@ export default function LandingPage() {
               <h2 className="font-headline-md text-headline-md text-on-surface mb-4">Invest in Your Knowledge</h2>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">Choose a plan that fits your schedule and learning goals. Transparent pricing with no hidden fees.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-              {/* Standard Plan */}
-              <div className="bg-surface rounded-2xl p-8 border border-outline-variant shadow-sm flex flex-col h-full">
-                <h3 className="font-headline-md text-headline-md-mobile text-on-surface mb-2">Standard Plan</h3>
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="font-display-lg text-[40px] font-bold text-primary">$40</span>
-                  <span className="font-body-md text-body-md text-on-surface-variant">/month</span>
-                </div>
-                <ul className="space-y-4 mb-8 flex-grow">
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    2 live classes/week
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    8 lessons/month
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    45 mins/lesson
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Regular assessments
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Full portal access
-                  </li>
-                </ul>
-                <button className="w-full border border-primary text-primary py-3 rounded-lg font-label-sm text-label-sm hover:bg-surface-container-high transition-colors">Select Standard</button>
-              </div>
-
-              {/* Personal Plan (Highlighted) */}
-              <div className="bg-surface-container-lowest rounded-2xl p-8 border-2 border-primary shadow-ambient flex flex-col h-full relative transform md:-translate-y-4">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-on-primary px-4 py-1 rounded-full font-label-sm text-[12px] uppercase tracking-wider">
-                  Most Popular
-                </div>
-                <h3 className="font-headline-md text-headline-md-mobile text-on-surface mb-2">Personal Plan</h3>
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="font-display-lg text-[40px] font-bold text-primary">$50</span>
-                  <span className="font-body-md text-body-md text-on-surface-variant">/month</span>
-                </div>
-                <ul className="space-y-4 mb-8 flex-grow">
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    <strong>8 one-on-one lessons</strong>/month
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Weekly live revision
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    45 mins/lesson
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Full portal access
-                  </li>
-                </ul>
-                <Link href="/login" className="w-full bg-primary text-on-primary py-3 rounded-lg font-label-sm text-label-sm hover:bg-primary-container transition-colors shadow-sm inline-block text-center">
-                  Login to Enroll
-                </Link>
-              </div>
-
-              {/* Premium Plan */}
-              <div className="bg-surface rounded-2xl p-8 border border-outline-variant shadow-sm flex flex-col h-full">
-                <h3 className="font-headline-md text-headline-md-mobile text-on-surface mb-2">Premium Plan</h3>
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="font-display-lg text-[40px] font-bold text-primary">$70</span>
-                  <span className="font-body-md text-body-md text-on-surface-variant">/month</span>
-                </div>
-                <ul className="space-y-4 mb-8 flex-grow">
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    3 live classes/week
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    12 lessons/month
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Weekly mentoring with Abu Yahya
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Free study materials
-                  </li>
-                  <li className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
-                    <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">check</span>
-                    Flexible scheduling
-                  </li>
-                </ul>
-                <button className="w-full border border-primary text-primary py-3 rounded-lg font-label-sm text-label-sm hover:bg-surface-container-high transition-colors">Select Premium</button>
+            <div className="flex justify-center items-center">
+              <div className="bg-surface-container-lowest rounded-2xl p-12 border-2 border-primary shadow-ambient flex flex-col items-center max-w-2xl text-center">
+                <span className="material-symbols-outlined text-primary text-[48px] mb-4">mail</span>
+                <h3 className="font-headline-md text-headline-md text-on-surface mb-4">Ready to Start Learning?</h3>
+                <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
+                  Book a call with our contact person to discuss your learning goals and find the perfect plan for you.
+                </p>
+                <a href="mailto:albasoiracademy@gmail.com" className="bg-primary text-on-primary px-8 py-4 rounded-lg font-label-sm text-label-sm shadow-sm hover:bg-primary-container transition-colors inline-flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[20px]">send</span>
+                  Email albasoiracademy@gmail.com
+                </a>
               </div>
             </div>
           </div>
