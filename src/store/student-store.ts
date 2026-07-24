@@ -29,6 +29,7 @@ export interface Course {
 interface StudentState {
   dashboardData: any | null;
   settings: any | null;
+  courses: Course[];
   
   // Actions
   initialize: (dashboardData: any, courses: Course[]) => void;
