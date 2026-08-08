@@ -4,6 +4,7 @@ import { fetchAPI } from '@/lib/api-client';
 export interface TutorClass {
   id: string;
   title: string;
+  courseTitle?: string;
   time: string;
   date?: string;
   type: string;

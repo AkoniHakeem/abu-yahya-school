@@ -193,7 +193,7 @@ export default function TutorSchedulingPage() {
                         <span className={`font-label-sm text-[12px] sm:text-[14px] absolute top-1 sm:top-2 right-1 sm:right-2 ${isToday ? 'text-primary font-bold' : 'text-on-surface'}`}>{day}</span>
                         <div className="mt-4 sm:mt-6 flex flex-col gap-1 overflow-hidden h-full">
                           {dayClasses.map((cls, idx) => (
-                            <div key={cls.id || idx} className="bg-secondary-container text-on-secondary-container text-[10px] sm:text-xs p-1 rounded font-body truncate leading-tight" title={`${cls.time} - ${cls.title} (${cls.courseTitle})`}>
+                            <div key={cls.id || idx} className="bg-secondary-container text-on-secondary-container text-[10px] sm:text-xs p-1 rounded font-body truncate leading-tight" title={`${cls.time} - ${cls.title} ${cls.courseTitle ? `(${cls.courseTitle})` : ''}`}>
                               <span className="font-semibold">{cls.time}</span> <span className="hidden sm:inline">- {cls.title}</span>
                             </div>
                           ))}
