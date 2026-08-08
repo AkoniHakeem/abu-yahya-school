@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import TutorSidebar from '@/components/TutorSidebar';
 import TutorMobileNav from '@/components/TutorMobileNav';
 import { fetchAPI } from '@/lib/api-client';
+import AlertModal from '@/components/shared/AlertModal';
 
 export default function TutorCommunityPage() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -14,6 +15,7 @@ export default function TutorCommunityPage() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, message: '' });
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,7 +55,7 @@ export default function TutorCommunityPage() {
       setIsComposing(false);
     } catch (error) {
       console.error('Failed to create post', error);
-      alert('Failed to post announcement.');
+      setAlertConfig({ isOpen: true, message: 'Failed to post announcement.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -179,6 +181,12 @@ export default function TutorCommunityPage() {
 
         </div>
       </main>
+
+      <AlertModal 
+        isOpen={alertConfig.isOpen} 
+        message={alertConfig.message} 
+        onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })} 
+      />
     </div>
   );
 }

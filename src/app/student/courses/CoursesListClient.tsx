@@ -75,7 +75,7 @@ export default function CoursesListClient({ initialCourses }: CoursesListClientP
                   <span className="material-symbols-outlined text-[18px] text-primary">video_library</span>
                   Recent Recordings
                 </h4>
-                <ul className="flex flex-col gap-2">
+                <ul className="flex flex-col gap-2 mb-4">
                   {course.recordings && course.recordings.length > 0 ? (
                     course.recordings.map((rec: any) => (
                       <li key={rec.id}>
@@ -92,6 +92,26 @@ export default function CoursesListClient({ initialCourses }: CoursesListClientP
                     ))
                   ) : (
                     <li className="text-xs text-on-surface-variant italic p-2">No recordings available yet.</li>
+                  )}
+                </ul>
+
+                <h4 className="font-label-sm text-[14px] text-on-surface font-semibold mb-3 flex items-center gap-2 border-t border-outline-variant/20 pt-4">
+                  <span className="material-symbols-outlined text-[18px] text-primary">group</span>
+                  My Classes
+                </h4>
+                <ul className="flex flex-col gap-2">
+                  {course.enrolledClasses && course.enrolledClasses.length > 0 ? (
+                    course.enrolledClasses.map((cls: any) => (
+                      <li key={cls.id} className="flex justify-between items-center p-2 rounded bg-surface-container-low text-sm text-on-surface-variant">
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-on-surface">{cls.title}</span>
+                          <span className="text-xs text-on-surface-variant">Tutor: {cls.tutor}</span>
+                        </div>
+                        <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">{cls.type}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-xs text-on-surface-variant italic p-2">You are not assigned to any classes for this course.</li>
                   )}
                 </ul>
               </div>

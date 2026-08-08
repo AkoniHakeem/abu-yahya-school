@@ -149,10 +149,10 @@ export default function SettingsForm({ initialProfile, role, activePlan, onSave 
                 className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface appearance-none"
               >
                 <option value="UTC">UTC (Universal Coordinated Time)</option>
-                <option value="UTC+1">UTC+1 (West Africa Time)</option>
-                <option value="UTC+3">UTC+3 (Arabia Standard Time)</option>
-                <option value="UTC-5">UTC-5 (Eastern Standard Time)</option>
-                <option value="UTC-8">UTC-8 (Pacific Standard Time)</option>
+                <option value="Africa/Lagos">Africa/Lagos (West Africa Time)</option>
+                <option value="Asia/Riyadh">Asia/Riyadh (Arabia Standard Time)</option>
+                <option value="America/New_York">America/New_York (Eastern Standard Time)</option>
+                <option value="America/Los_Angeles">America/Los_Angeles (Pacific Standard Time)</option>
               </select>
             </div>
 

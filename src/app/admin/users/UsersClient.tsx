@@ -12,6 +12,10 @@ export default function UsersClient() {
   const [newUser, setNewUser] = useState({ firstName: '', lastName: '', middle: '', email: '', password: 'defaultPassword123', role: 'student' });
   const [showPassword, setShowPassword] = useState(false);
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState({ id: '', firstName: '', lastName: '', password: '', role: 'student' });
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
@@ -33,12 +37,32 @@ export default function UsersClient() {
     }
   };
 
-  const handleEditUser = async (user: any) => {
-    const newName = prompt("Enter updated user's name:", user.name);
-    const newRole = prompt("Enter updated user's role (student/tutor/admin):", user.role);
-    
-    if (newName && newRole) {
-      await updateUser(user.id, { name: newName, role: newRole });
+  const handleEditUser = (user: any) => {
+    setEditingUser({
+      id: user.id,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      password: '',
+      role: user.role,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUser.firstName && editingUser.lastName && editingUser.role) {
+      const data: any = {
+        firstName: editingUser.firstName,
+        lastName: editingUser.lastName,
+        role: editingUser.role,
+      };
+      
+      if (editingUser.password) {
+        data.password = editingUser.password;
+      }
+      
+      await updateUser(editingUser.id, data);
+      setIsEditModalOpen(false);
     }
   };
 
@@ -232,6 +256,82 @@ export default function UsersClient() {
                 </button>
                 <button type="submit" className="px-4 py-2 rounded-lg text-sm font-bold bg-primary text-on-primary hover:bg-primary/90">
                   Add User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-surface-container-lowest w-full max-w-md rounded-xl shadow-card flex flex-col overflow-hidden">
+            <div className="px-6 py-4 border-b border-outline-variant/30 flex justify-between items-center">
+              <h2 className="font-headline text-[20px] font-bold text-on-surface">Edit User</h2>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-on-surface-variant hover:text-on-surface">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleEditUserSubmit} className="p-6 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-on-surface">First Name</label>
+                <input 
+                  type="text" 
+                  required
+                  className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface"
+                  value={editingUser.firstName}
+                  onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-on-surface">Last Name</label>
+                <input 
+                  type="text" 
+                  required
+                  className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface"
+                  value={editingUser.lastName}
+                  onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-on-surface">Override Password (Optional)</label>
+                <div className="relative">
+                  <input 
+                    type={showEditPassword ? "text" : "password"} 
+                    placeholder="Leave blank to keep current"
+                    className="w-full px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface pr-10"
+                    value={editingUser.password}
+                    onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
+                    onClick={() => setShowEditPassword(!showEditPassword)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {showEditPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-on-surface">Role</label>
+                <select 
+                  className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg focus:outline-none focus:border-primary text-on-surface"
+                  value={editingUser.role}
+                  onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                >
+                  <option value="student">Student</option>
+                  <option value="tutor">Tutor</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface-variant">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 rounded-lg text-sm font-bold bg-primary text-on-primary hover:bg-primary/90">
+                  Save Changes
                 </button>
               </div>
             </form>

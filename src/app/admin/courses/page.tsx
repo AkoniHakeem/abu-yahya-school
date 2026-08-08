@@ -4,10 +4,13 @@ import React, { useState, useEffect } from 'react';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminMobileNav from '@/components/AdminMobileNav';
 import { useAdminStore } from '@/store/admin-store';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 
 export default function AdminCoursesPage() {
-  const { courses, fetchCourses, addCourse, isLoading } = useAdminStore();
+  const { courses, fetchCourses, addCourse, updateCourse, deleteCourse, isLoading } = useAdminStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: () => {} });
   
   // Form State
   const [title, setTitle] = useState('');
@@ -36,13 +39,39 @@ export default function AdminCoursesPage() {
     if (!title) return;
     
     setIsSubmitting(true);
-    await addCourse({
-      title,
-      media: mediaList
-    });
+    if (editingCourseId) {
+      await updateCourse(editingCourseId, { title, media: mediaList });
+    } else {
+      await addCourse({ title, media: mediaList });
+    }
     
     setIsSubmitting(false);
     setIsModalOpen(false);
+    setEditingCourseId(null);
+    setTitle('');
+    setMediaList([]);
+  };
+
+  const handleEdit = (course: any) => {
+    setTitle(course.title);
+    setMediaList(course.media || []);
+    setEditingCourseId(course.id);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      message: 'Are you sure you want to delete this course?',
+      onConfirm: async () => {
+        await deleteCourse(id);
+      }
+    });
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingCourseId(null);
     setTitle('');
     setMediaList([]);
   };
@@ -62,7 +91,12 @@ export default function AdminCoursesPage() {
             </div>
             <button 
               className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-sm text-[14px] font-bold hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center gap-2 shadow-ambient"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setEditingCourseId(null);
+                setTitle('');
+                setMediaList([]);
+                setIsModalOpen(true);
+              }}
             >
               <span className="material-symbols-outlined">add</span>
               Create Course
@@ -81,10 +115,11 @@ export default function AdminCoursesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                  <div key={course.id} className="p-5 border border-surface-variant rounded-xl bg-surface hover:border-primary/50 transition-colors shadow-sm">
-                    <h4 className="font-headline text-[18px] font-bold text-on-surface mb-3">{course.title}</h4>
-                    <div className="space-y-2">
+                {courses.map((course: any) => (
+                  <div key={course.id} className="p-5 border border-surface-variant rounded-xl bg-surface hover:border-primary/50 transition-colors shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="font-headline text-[18px] font-bold text-on-surface mb-3">{course.title}</h4>
+                      <div className="space-y-2">
                       <p className="font-label-sm text-sm text-on-surface-variant">Media Files: {course.media?.length || 0}</p>
                       {course.media && course.media.length > 0 && (
                         <ul className="text-xs space-y-1">
@@ -99,6 +134,15 @@ export default function AdminCoursesPage() {
                         </ul>
                       )}
                     </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-outline-variant/30 flex justify-end gap-2">
+                      <button onClick={() => handleEdit(course)} className="text-primary hover:bg-primary/10 p-2 rounded-lg transition-colors">
+                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                      </button>
+                      <button onClick={() => handleDelete(course.id)} className="text-error hover:bg-error/10 p-2 rounded-lg transition-colors">
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -112,10 +156,10 @@ export default function AdminCoursesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-background/50 backdrop-blur-sm p-4">
           <div className="bg-surface-container-lowest rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-surface-variant">
             <div className="p-6 border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface-container-lowest z-10">
-              <h3 className="font-headline text-[24px] font-semibold text-primary">Create New Course</h3>
+              <h3 className="font-headline text-[24px] font-semibold text-primary">{editingCourseId ? 'Edit Course' : 'Create New Course'}</h3>
               <button 
                 className="text-on-surface-variant hover:text-error transition-colors p-1"
-                onClick={() => setIsModalOpen(false)}
+                onClick={handleCloseModal}
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -189,7 +233,7 @@ export default function AdminCoursesPage() {
               <div className="pt-6 border-t border-surface-variant flex justify-end gap-3">
                 <button 
                   className="px-6 py-2 rounded-lg font-label-sm font-bold border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" 
-                  onClick={() => setIsModalOpen(false)} 
+                  onClick={handleCloseModal} 
                   type="button"
                 >
                   Cancel
@@ -199,13 +243,20 @@ export default function AdminCoursesPage() {
                   type="submit"
                   disabled={isSubmitting || !title}
                 >
-                  {isSubmitting ? 'Creating...' : 'Create Course'}
+                  {isSubmitting ? (editingCourseId ? 'Saving...' : 'Creating...') : (editingCourseId ? 'Save Changes' : 'Create Course')}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen} 
+        message={confirmConfig.message} 
+        onConfirm={confirmConfig.onConfirm} 
+        onCancel={() => setConfirmConfig({ ...confirmConfig, isOpen: false })} 
+      />
     </div>
   );
 }

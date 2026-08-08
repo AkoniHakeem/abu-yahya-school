@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { fetchAPI } from '@/lib/api-client';
+import AlertModal from '@/components/shared/AlertModal';
 
 export default function StudentAssignmentsPage() {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, message: '' });
 
   useEffect(() => {
     const loadData = async () => {
@@ -40,7 +42,7 @@ export default function StudentAssignmentsPage() {
       ));
     } catch (error) {
       console.error('Upload failed', error);
-      alert('Failed to upload assignment.');
+      setAlertConfig({ isOpen: true, message: 'Failed to upload assignment.' });
     } finally {
       setUploadingId(null);
     }
@@ -186,6 +188,12 @@ export default function StudentAssignmentsPage() {
         </div>
 
       </div>
+
+      <AlertModal 
+        isOpen={alertConfig.isOpen} 
+        message={alertConfig.message} 
+        onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })} 
+      />
     </div>
   );
 }

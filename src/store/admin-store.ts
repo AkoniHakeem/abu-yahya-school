@@ -26,7 +26,12 @@ interface AdminState {
   addClass: (classData: any) => Promise<void>;
   updateClass: (id: string, classData: any) => Promise<void>;
   addCourse: (courseData: any) => Promise<void>;
+  updateCourse: (id: string, courseData: any) => Promise<void>;
+  deleteCourse: (id: string) => Promise<void>;
+  deleteClass: (id: string) => Promise<void>;
   enrollStudent: (enrollmentData: any) => Promise<void>;
+  updateEnrollment: (id: string, enrollmentData: any) => Promise<void>;
+  deleteEnrollment: (id: string) => Promise<void>;
   resolveTicket: (ticketId: string) => Promise<void>;
 }
 
@@ -161,9 +166,49 @@ export const useAdminStore = create<AdminState>((set) => ({
     } catch (e) {}
   },
 
+  updateCourse: async (id, courseData) => {
+    try {
+      await fetchAPI(`/api/admin/courses/${id}`, { method: 'PUT', body: JSON.stringify(courseData) });
+      const courses = await fetchAPI('/api/admin/courses');
+      set({ courses });
+    } catch (e) {}
+  },
+
+  deleteCourse: async (id) => {
+    try {
+      await fetchAPI(`/api/admin/courses/${id}`, { method: 'DELETE' });
+      const courses = await fetchAPI('/api/admin/courses');
+      set({ courses });
+    } catch (e) {}
+  },
+
+  deleteClass: async (id) => {
+    try {
+      await fetchAPI(`/api/admin/classes/${id}`, { method: 'DELETE' });
+      const classes = await fetchAPI('/api/admin/classes');
+      set({ classes });
+    } catch (e) {}
+  },
+
   enrollStudent: async (enrollmentData) => {
     try {
       await fetchAPI('/api/admin/enrollments', { method: 'POST', body: JSON.stringify(enrollmentData) });
+      const enrollments = await fetchAPI('/api/admin/enrollments');
+      set({ enrollments });
+    } catch (e) {}
+  },
+
+  updateEnrollment: async (id, enrollmentData) => {
+    try {
+      await fetchAPI(`/api/admin/enrollments/${id}`, { method: 'PUT', body: JSON.stringify(enrollmentData) });
+      const enrollments = await fetchAPI('/api/admin/enrollments');
+      set({ enrollments });
+    } catch (e) {}
+  },
+
+  deleteEnrollment: async (id) => {
+    try {
+      await fetchAPI(`/api/admin/enrollments/${id}`, { method: 'DELETE' });
       const enrollments = await fetchAPI('/api/admin/enrollments');
       set({ enrollments });
     } catch (e) {}

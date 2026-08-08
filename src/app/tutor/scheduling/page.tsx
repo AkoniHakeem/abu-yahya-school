@@ -193,7 +193,7 @@ export default function TutorSchedulingPage() {
                         <span className={`font-label-sm text-[12px] sm:text-[14px] absolute top-1 sm:top-2 right-1 sm:right-2 ${isToday ? 'text-primary font-bold' : 'text-on-surface'}`}>{day}</span>
                         <div className="mt-4 sm:mt-6 flex flex-col gap-1 overflow-hidden h-full">
                           {dayClasses.map((cls, idx) => (
-                            <div key={cls.id || idx} className="bg-secondary-container text-on-secondary-container text-[10px] sm:text-xs p-1 rounded font-body truncate leading-tight" title={`${cls.time} - ${cls.title}`}>
+                            <div key={cls.id || idx} className="bg-secondary-container text-on-secondary-container text-[10px] sm:text-xs p-1 rounded font-body truncate leading-tight" title={`${cls.time} - ${cls.title} (${cls.courseTitle})`}>
                               <span className="font-semibold">{cls.time}</span> <span className="hidden sm:inline">- {cls.title}</span>
                             </div>
                           ))}
@@ -226,7 +226,8 @@ export default function TutorSchedulingPage() {
                             <h4 className="font-label-sm text-[14px] text-on-surface font-bold">{session.title}</h4>
                             <span className="text-xs font-semibold px-2 py-1 rounded bg-secondary-container text-on-secondary-container">Upcoming</span>
                           </div>
-                          <p className="font-body text-sm text-on-surface-variant mt-1">{session.date ? `${session.date} | ` : ''}{session.time}</p>
+                          <p className="font-body text-xs text-primary font-medium mb-1">{session.courseTitle}</p>
+                          <p className="font-body text-sm text-on-surface-variant">{session.date ? `${session.date} | ` : ''}{session.time}</p>
                           <div className="mt-2 flex gap-2">
                             <span className="text-xs bg-surface-container-high px-2 py-1 rounded text-on-surface-variant">
                               {session.type === 'Live Class' ? `${session.studentCount} Students` : session.studentName || '1-on-1'}
@@ -274,7 +275,7 @@ export default function TutorSchedulingPage() {
                 >
                   <option value="" disabled>Select a class</option>
                   {assignedClasses.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.title} ({c.type})</option>
+                    <option key={c.id} value={c.id}>{c.title} - {c.courseTitle} ({c.type})</option>
                   ))}
                 </select>
               </div>

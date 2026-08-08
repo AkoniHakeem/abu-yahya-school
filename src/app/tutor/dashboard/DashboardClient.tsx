@@ -96,9 +96,10 @@ export default function DashboardClient({ initialData }: { initialData: any }) {
                     <div>
                       <span className="text-xs font-bold text-primary mb-1 block">{cls.time}</span>
                       <h3 className="font-bold text-on-surface">{cls.title}</h3>
+                      <p className="text-xs font-medium text-primary">{cls.courseTitle}</p>
                       <p className="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
                         <span className={`w-2 h-2 rounded-full ${cls.type === 'Live Class' ? 'bg-secondary' : 'bg-tertiary'}`}></span>
-                        {cls.type} {cls.studentCount ? `(${cls.studentCount} students)` : `with ${cls.studentName}`}
+                        {cls.type} {cls.studentCount > 1 ? `(${cls.studentCount} students)` : (cls.studentName ? `with ${cls.studentName}` : `(0 students)`)}
                       </p>
                     </div>
                     <a 

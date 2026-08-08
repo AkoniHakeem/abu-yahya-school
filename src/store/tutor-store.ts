@@ -43,11 +43,14 @@ interface TutorState {
   fetchSettings: () => Promise<void>;
   fetchAllClasses: () => Promise<void>;
   fetchAssignedClasses: () => Promise<void>;
+  createSchedule: (data: any) => Promise<void>;
+  updateSchedule: (scheduleId: string, data: any) => Promise<void>;
+  deleteSchedule: (scheduleId: string) => Promise<void>;
   scheduleClass: (newClass: TutorClass) => void;
   submitGrade: (assignmentId: string, score: number) => void;
 }
 
-export const useTutorStore = create<TutorState>((set) => ({
+export const useTutorStore = create<TutorState>((set, get) => ({
   dashboardStats: {
     todaysClasses: [],
     pendingGradingCount: 0,
@@ -89,9 +92,48 @@ export const useTutorStore = create<TutorState>((set) => ({
     }
   },
 
+  createSchedule: async (data) => {
+    try {
+      await fetchAPI('/api/tutor/classes', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      // Refresh both assigned classes (which now include schedules) and dashboard
+      await get().fetchAssignedClasses();
+      await get().fetchAllClasses();
+      const dashboardData = await fetchAPI('/api/tutor/dashboard');
+      set({ dashboardStats: dashboardData, upcomingClasses: dashboardData.todaysClasses });
+    } catch (e) {
+      console.error('Failed to create schedule', e);
+    }
+  },
+
+  updateSchedule: async (scheduleId, data) => {
+    try {
+      await fetchAPI(`/api/tutor/schedules/${scheduleId}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      await get().fetchAssignedClasses();
+      await get().fetchAllClasses();
+    } catch (e) {
+      console.error('Failed to update schedule', e);
+    }
+  },
+
+  deleteSchedule: async (scheduleId) => {
+    try {
+      await fetchAPI(`/api/tutor/schedules/${scheduleId}`, {
+        method: 'DELETE',
+      });
+      await get().fetchAssignedClasses();
+      await get().fetchAllClasses();
+    } catch (e) {
+      console.error('Failed to delete schedule', e);
+    }
+  },
+
   scheduleClass: (newClass) => set((state) => {
-    // Assuming for now that scheduled classes are for today if date is not in the distant future
-    // In a real app, we'd check if `newClass.date` is today's date
     const updatedTodaysClasses = [...state.dashboardStats.todaysClasses, newClass];
     const updatedUpcomingClasses = [...state.upcomingClasses, newClass];
     

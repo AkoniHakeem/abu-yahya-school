@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useStudentStore } from '@/store/student-store';
+import { getValidTimezone } from '@/lib/date-utils';
 
 interface DashboardClientProps {
   initialData: any;
@@ -50,7 +51,12 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
           {/* Upcoming Class */}
           <section>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-headline text-[24px] font-bold text-primary">Next Up</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="font-headline text-[24px] font-bold text-primary">Next Up</h2>
+                <span className="text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-md border border-outline-variant/30">
+                  {getValidTimezone(profile?.timezone)}
+                </span>
+              </div>
               <Link href="/student/schedule" className="text-primary hover:underline text-sm font-medium">
                 View Schedule
               </Link>
@@ -60,14 +66,15 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
               <div className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient border border-outline-variant/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-start gap-4">
                   <div className="bg-secondary-container text-on-secondary-container p-3 rounded-lg flex flex-col items-center justify-center min-w-[60px]">
-                    <span className="text-xs font-bold uppercase">{new Date(upcomingClass.date).toLocaleDateString('en-US', { month: 'short' })}</span>
-                    <span className="text-xl font-bold">{new Date(upcomingClass.date).getDate()}</span>
+                    <span className="text-xs font-bold uppercase">{new Date(upcomingClass.date).toLocaleDateString('en-US', { month: 'short', timeZone: getValidTimezone(profile?.timezone) })}</span>
+                    <span className="text-xl font-bold">{new Date(upcomingClass.date).toLocaleDateString('en-US', { day: 'numeric', timeZone: getValidTimezone(profile?.timezone) })}</span>
                   </div>
                   <div>
-                    <h3 className="font-headline text-[20px] font-semibold text-on-surface mb-1">{upcomingClass.courseTitle}</h3>
+                    <h3 className="font-headline text-[20px] font-semibold text-on-surface mb-1">{upcomingClass.title}</h3>
+                    <p className="text-primary font-medium mb-1">{upcomingClass.courseTitle}</p>
                     <p className="text-on-surface-variant flex items-center gap-1 text-sm mb-2">
                       <span className="material-symbols-outlined text-[16px]">schedule</span> 
-                      {new Date(upcomingClass.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ({upcomingClass.duration})
+                      {new Date(upcomingClass.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: getValidTimezone(profile?.timezone) })} ({upcomingClass.duration})
                     </p>
                     <p className="text-primary flex items-center gap-1 text-sm font-medium">
                       <span className="material-symbols-outlined text-[16px]">person</span> {upcomingClass.tutor}

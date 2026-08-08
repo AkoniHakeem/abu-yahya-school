@@ -4,15 +4,19 @@ import React, { useState, useEffect } from 'react';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminMobileNav from '@/components/AdminMobileNav';
 import { useAdminStore } from '@/store/admin-store';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 
 export default function AdminEnrollmentsPage() {
-  const { enrollments, fetchEnrollments, courses, fetchCourses, users, fetchUsers, enrollStudent, isLoading } = useAdminStore();
+  const { enrollments, fetchEnrollments, courses, fetchCourses, users, fetchUsers, enrollStudent, updateEnrollment, deleteEnrollment, isLoading } = useAdminStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: () => {} });
   
   // Form State
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingEnrollment, setEditingEnrollment] = useState<any>(null);
 
   useEffect(() => {
     fetchEnrollments();
@@ -36,6 +40,36 @@ export default function AdminEnrollmentsPage() {
     setIsModalOpen(false);
     setSelectedStudentId('');
     setSelectedCourseId('');
+  };
+
+  const openEditModal = (enrollment: any) => {
+    setEditingEnrollment(enrollment);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingEnrollment) return;
+    setIsSubmitting(true);
+    await updateEnrollment(editingEnrollment.id, {
+      studentId: editingEnrollment.studentId,
+      courseId: editingEnrollment.courseId,
+      status: editingEnrollment.status,
+      progress: parseInt(editingEnrollment.progress, 10),
+    });
+    setIsSubmitting(false);
+    setIsEditModalOpen(false);
+    setEditingEnrollment(null);
+  };
+
+  const handleDelete = (id: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      message: 'Are you sure you want to delete this enrollment?',
+      onConfirm: async () => {
+        await deleteEnrollment(id);
+      }
+    });
   };
 
   return (
@@ -91,6 +125,7 @@ export default function AdminEnrollmentsPage() {
                       <th className="p-4 font-label-sm font-bold text-on-surface-variant uppercase tracking-wider text-[12px]">Enrollment Date</th>
                       <th className="p-4 font-label-sm font-bold text-on-surface-variant uppercase tracking-wider text-[12px]">Status</th>
                       <th className="p-4 font-label-sm font-bold text-on-surface-variant uppercase tracking-wider text-[12px]">Progress</th>
+                      <th className="p-4 font-label-sm font-bold text-on-surface-variant uppercase tracking-wider text-[12px] text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="font-body text-[14px]">
@@ -109,6 +144,16 @@ export default function AdminEnrollmentsPage() {
                           </span>
                         </td>
                         <td className="p-4 text-on-surface-variant">{e.progress}%</td>
+                        <td className="p-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => openEditModal(e)} className="text-primary hover:bg-primary-container p-2 rounded-full transition-colors" title="Edit">
+                              <span className="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button onClick={() => handleDelete(e.id)} className="text-error hover:bg-error-container p-2 rounded-full transition-colors" title="Delete">
+                              <span className="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -184,6 +229,105 @@ export default function AdminEnrollmentsPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Enrollment Modal */}
+      {isEditModalOpen && editingEnrollment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-background/50 backdrop-blur-sm p-4">
+          <div className="bg-surface-container-lowest rounded-xl shadow-2xl max-w-lg w-full border border-surface-variant">
+            <div className="p-6 border-b border-surface-variant flex justify-between items-center">
+              <h3 className="font-headline text-[24px] font-semibold text-primary">Edit Enrollment</h3>
+              <button 
+                className="text-on-surface-variant hover:text-error transition-colors p-1"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <form className="p-6 space-y-6" onSubmit={handleEditSubmit}>
+              <div>
+                <label className="block font-label-sm text-[14px] text-on-surface mb-2">Student</label>
+                <select 
+                  className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body text-[16px] text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
+                  value={editingEnrollment.studentId}
+                  onChange={(e) => setEditingEnrollment({...editingEnrollment, studentId: e.target.value})}
+                  required
+                >
+                  <option value="" disabled>-- Select a Student --</option>
+                  {students.map((student: any) => (
+                    <option key={student.id} value={student.id}>{student.name} ({student.email})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-label-sm text-[14px] text-on-surface mb-2">Course</label>
+                <select 
+                  className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body text-[16px] text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
+                  value={editingEnrollment.courseId}
+                  onChange={(e) => setEditingEnrollment({...editingEnrollment, courseId: e.target.value})}
+                  required
+                >
+                  <option value="" disabled>-- Select a Course --</option>
+                  {courses.map((course: any) => (
+                    <option key={course.id} value={course.id}>{course.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-label-sm text-[14px] text-on-surface mb-2">Status</label>
+                  <select 
+                    className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body text-[16px] text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
+                    value={editingEnrollment.status}
+                    onChange={(e) => setEditingEnrollment({...editingEnrollment, status: e.target.value})}
+                  >
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="dropped">Dropped</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-label-sm text-[14px] text-on-surface mb-2">Progress (%)</label>
+                  <input 
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body text-[16px] text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
+                    value={editingEnrollment.progress}
+                    onChange={(e) => setEditingEnrollment({...editingEnrollment, progress: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <button 
+                  className="px-6 py-2 rounded-lg font-label-sm font-bold border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" 
+                  onClick={() => setIsEditModalOpen(false)} 
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="px-6 py-2 rounded-lg font-label-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2" 
+                  type="submit"
+                  disabled={isSubmitting || !editingEnrollment.studentId || !editingEnrollment.courseId}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen} 
+        message={confirmConfig.message} 
+        onConfirm={confirmConfig.onConfirm} 
+        onCancel={() => setConfirmConfig({ ...confirmConfig, isOpen: false })} 
+      />
     </div>
   );
 }

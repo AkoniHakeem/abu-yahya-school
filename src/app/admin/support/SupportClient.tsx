@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminStore } from '@/store/admin-store';
+import AlertModal from '@/components/shared/AlertModal';
 
 export default function SupportClient() {
   const { tickets, fetchTickets, resolveTicket } = useAdminStore();
   const [activeTab, setActiveTab] = useState('open');
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, message: '' });
 
   useEffect(() => {
     fetchTickets();
@@ -25,7 +27,7 @@ export default function SupportClient() {
     e.preventDefault();
     if (!replyText.trim() || !selectedTicket) return;
     // In a real app we'd save this reply. For this mock, we'll just resolve or alert.
-    alert('Reply sent! (Mock implementation)');
+    setAlertConfig({ isOpen: true, message: 'Reply sent! (Mock implementation)' });
     setReplyText('');
   };
 
@@ -187,6 +189,12 @@ export default function SupportClient() {
         </div>
 
       </div>
+
+      <AlertModal 
+        isOpen={alertConfig.isOpen} 
+        message={alertConfig.message} 
+        onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })} 
+      />
     </div>
   );
 }

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
-    {"offset": {"line": 55, "column": 0}, "map": {"version":3,"sources":["file:///home/akonimayowa/projects/abu-yahya-school/src/app/api/logout/route.ts"],"sourcesContent":["import { NextResponse } from 'next/server'\nimport { cookies } from 'next/headers'\n\nexport async function GET(request: Request) {\n  // Clear the auth cookie\n  const cookieStore = await cookies();\n  cookieStore.delete('auth_role');\n  \n  // Redirect to login\n  const url = new URL('/login', request.url)\n  return NextResponse.redirect(url)\n}\n"],"names":[],"mappings":";;;;AAAA;AACA;;;AAEO,eAAe,IAAI,OAAgB;IACxC,wBAAwB;IACxB,MAAM,cAAc,MAAM,IAAA,4IAAO;IACjC,YAAY,MAAM,CAAC;IAEnB,oBAAoB;IACpB,MAAM,MAAM,IAAI,IAAI,UAAU,QAAQ,GAAG;IACzC,OAAO,gJAAY,CAAC,QAAQ,CAAC;AAC/B","debugId":null}}]
-}

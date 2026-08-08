@@ -24,6 +24,7 @@ export interface Course {
   isLocked?: boolean;
   lessons: Lesson[];
   recordings?: any[];
+  enrolledClasses?: any[];
 }
 
 interface StudentState {
