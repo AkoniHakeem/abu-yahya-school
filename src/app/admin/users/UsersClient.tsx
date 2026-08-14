@@ -67,7 +67,7 @@ export default function UsersClient() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-10 flex flex-col gap-6 relative">
+    <div className="flex-1 min-h-0 overflow-y-auto p-4 lg:p-10 flex flex-col gap-6 relative">
       <div className="w-full h-20 bg-surface-container-lowest border-b border-outline-variant/30 flex justify-between items-center px-4 lg:px-10 shrink-0 z-10 shadow-sm mb-6 rounded-xl">
         <h1 className="font-headline text-[24px] text-on-surface font-semibold">User Directory</h1>
         <button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-lg font-label-sm text-[14px] font-bold hover:shadow-md transition-all active:scale-95 duration-150">

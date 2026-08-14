@@ -81,7 +81,7 @@ export default function SupportClient() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {filteredTickets.length > 0 ? (
               <ul className="divide-y divide-outline-variant/30">
                 {filteredTickets.map((ticket: any) => (
@@ -145,7 +145,7 @@ export default function SupportClient() {
                 )}
               </div>
               
-              <div className="flex-1 p-6 overflow-y-auto bg-surface-container-lowest flex flex-col gap-6">
+              <div className="flex-1 min-h-0 p-6 overflow-y-auto bg-surface-container-lowest flex flex-col gap-6">
                  {/* Mock history */}
                  <div className={`flex flex-col max-w-[80%] self-start items-start`}>
                     <div className="flex items-center gap-2 mb-1">
