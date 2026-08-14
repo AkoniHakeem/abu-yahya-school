@@ -145,7 +145,7 @@ export default function SupportClient() {
                 )}
               </div>
               
-              <div className="flex-1 min-h-0 p-6 overflow-y-auto bg-surface-container-lowest flex flex-col gap-6">
+              <div className="flex-1 min-h-0 p-6 overflow-y-auto bg-surface-container-lowest flex flex-col gap-6 [&>*]:shrink-0">
                  {/* Mock history */}
                  <div className={`flex flex-col max-w-[80%] self-start items-start`}>
                     <div className="flex items-center gap-2 mb-1">

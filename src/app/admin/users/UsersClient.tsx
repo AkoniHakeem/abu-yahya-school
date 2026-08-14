@@ -76,7 +76,7 @@ export default function UsersClient() {
         </button>
       </div>
 
-      <div className="w-full bg-surface-container-lowest rounded-xl p-4 shadow-card border border-outline-variant/40 flex flex-col md:flex-row gap-4 items-center">
+      <div className="w-full bg-surface-container-lowest rounded-xl p-4 shadow-card border border-outline-variant/40 flex flex-col md:flex-row gap-4 items-center shrink-0">
         <div className="relative flex-1 w-full">
           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
           <input 
@@ -103,7 +103,7 @@ export default function UsersClient() {
         </div>
       </div>
 
-      <div className="w-full bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant/40 overflow-hidden">
+      <div className="w-full bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant/40 overflow-hidden shrink-0">
         {isLoading ? (
           <div className="p-8 text-center text-on-surface-variant">Loading users...</div>
         ) : (
