@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getValidTimezone } from '@/lib/date-utils';
+import { getValidTimezone, toLocal } from '@/lib/date-utils';
 
 export default function ClientScheduleView({ schedule, profileTimezone }: { schedule: any[], profileTimezone?: string }) {
   const [groupedSchedule, setGroupedSchedule] = useState<any>({});
@@ -13,17 +13,27 @@ export default function ClientScheduleView({ schedule, profileTimezone }: { sche
     const tz = getValidTimezone(profileTimezone);
     setTimezoneName(tz);
 
+    // Convert all schedules to local time before grouping
+    const localSchedule = schedule.map(session => {
+      if (!session.date || !session.time) return session;
+      const local = toLocal(session.date, session.time, tz);
+      return { ...session, date: local.date, time: local.time };
+    });
+
     // Group by local date string
-    const grouped = schedule.reduce((acc: any, curr: any) => {
-      const date = new Date(curr.date).toLocaleDateString('en-US', { 
+    const grouped = localSchedule.reduce((acc: any, curr: any) => {
+      // Create a date object in local time for formatting the header
+      // Since curr.date is now YYYY-MM-DD in local time, we can parse it directly
+      // Append T00:00:00 to avoid timezone shifting when formatting the date string
+      const dateObj = new Date(`${curr.date}T00:00:00`);
+      const dateStr = dateObj.toLocaleDateString('en-US', { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
-        day: 'numeric',
-        timeZone: tz 
+        day: 'numeric'
       });
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(curr);
+      if (!acc[dateStr]) acc[dateStr] = [];
+      acc[dateStr].push(curr);
       return acc;
     }, {});
     
@@ -57,7 +67,7 @@ export default function ClientScheduleView({ schedule, profileTimezone }: { sche
                     <div className="flex items-start gap-4">
                       <div className="hidden sm:flex flex-col items-center justify-center min-w-[80px] border-r border-outline-variant/30 pr-4">
                         <span className="font-headline text-[24px] font-bold text-primary">
-                          {new Date(session.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: timezoneName })}
+                          {session.time}
                         </span>
                         <span className="text-xs text-on-surface-variant uppercase tracking-wider">{session.duration}</span>
                       </div>
@@ -77,7 +87,7 @@ export default function ClientScheduleView({ schedule, profileTimezone }: { sche
                         <p className="text-on-surface-variant flex items-center gap-2 text-sm">
                           <span className="material-symbols-outlined text-[16px]">person</span> {session.tutor}
                           <span className="sm:hidden material-symbols-outlined text-[16px] ml-2">schedule</span>
-                          <span className="sm:hidden">{new Date(session.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: timezoneName })}</span>
+                          <span className="sm:hidden">{session.time}</span>
                         </p>
                       </div>
                     </div>

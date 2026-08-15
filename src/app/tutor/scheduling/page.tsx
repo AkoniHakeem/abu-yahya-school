@@ -6,12 +6,13 @@ import TutorSidebar from '@/components/TutorSidebar';
 import TutorMobileNav from '@/components/TutorMobileNav';
 import { useTutorStore, TutorClass } from '@/store/tutor-store';
 import { fetchAPI } from '@/lib/api-client';
+import { toUTC, toLocal } from '@/lib/date-utils';
 
 export default function TutorSchedulingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { dashboardStats, upcomingClasses, initializeStore, scheduleClass, allClasses, fetchAllClasses, assignedClasses, fetchAssignedClasses } = useTutorStore();
+  const { dashboardStats, upcomingClasses, initializeStore, scheduleClass, allClasses, fetchAllClasses, assignedClasses, fetchAssignedClasses, settings, fetchSettings } = useTutorStore();
   const [loading, setLoading] = useState(dashboardStats.todaysClasses.length === 0);
 
   // Calendar State
@@ -36,6 +37,9 @@ export default function TutorSchedulingPage() {
         if (assignedClasses.length === 0) {
           fetchAssignedClasses();
         }
+        if (!settings) {
+          fetchSettings();
+        }
       } catch (error) {
         console.error('Failed to load classes', error);
       } finally {
@@ -43,7 +47,7 @@ export default function TutorSchedulingPage() {
       }
     };
     loadData();
-  }, [dashboardStats.todaysClasses.length, initializeStore, allClasses.length, fetchAllClasses, assignedClasses.length, fetchAssignedClasses]);
+  }, [dashboardStats.todaysClasses.length, initializeStore, allClasses.length, fetchAllClasses, assignedClasses.length, fetchAssignedClasses, settings, fetchSettings]);
 
   // Calendar Logic
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -77,11 +81,14 @@ export default function TutorSchedulingPage() {
     
     const selectedClass = assignedClasses.find(c => c.id === classId);
     
+    const userTimezone = settings?.profileData?.timezone;
+    const utcSchedule = toUTC(date, time, userTimezone);
+
     const newClass: TutorClass = {
       id: `cls-${Date.now()}`,
       title: selectedClass ? selectedClass.title : '',
-      time,
-      date,
+      time: utcSchedule.time,
+      date: utcSchedule.date,
       type: selectedClass ? selectedClass.type : 'Live Class',
       studentCount: 0,
       classLink
@@ -111,6 +118,20 @@ export default function TutorSchedulingPage() {
   };
 
   const sessionsToList = upcomingClasses.length > 0 ? upcomingClasses : dashboardStats.todaysClasses;
+  const userTimezone = settings?.profileData?.timezone;
+
+  // Convert all classes to local time for calendar display
+  const localAllClasses = allClasses.map(c => {
+    if (!c.date || !c.time) return c;
+    const local = toLocal(c.date, c.time, userTimezone);
+    return { ...c, date: local.date, time: local.time };
+  });
+
+  const localSessionsToList = sessionsToList.map(session => {
+    if (!session.date || !session.time) return session;
+    const local = toLocal(session.date, session.time, userTimezone);
+    return { ...session, date: local.date, time: local.time };
+  });
 
   return (
     <div className="bg-background text-on-background antialiased flex h-screen overflow-hidden">
@@ -185,7 +206,7 @@ export default function TutorSchedulingPage() {
                   {Array.from({ length: daysInMonth }).map((_, i) => {
                     const day = i + 1;
                     const dateString = formatDateString(currentYear, currentMonthIndex, day);
-                    const dayClasses = allClasses.filter(c => c.date === dateString);
+                    const dayClasses = localAllClasses.filter(c => c.date === dateString);
                     const isToday = dateString === new Date().toISOString().split('T')[0];
                     
                     return (
@@ -215,8 +236,8 @@ export default function TutorSchedulingPage() {
                   
                   {loading ? (
                     <div className="animate-pulse text-on-surface-variant">Loading sessions...</div>
-                  ) : sessionsToList.length > 0 ? (
-                    sessionsToList.map((session, i) => (
+                  ) : localSessionsToList.length > 0 ? (
+                    localSessionsToList.map((session, i) => (
                       <div key={session.id} className="flex items-start gap-4 p-4 rounded-lg bg-surface border border-outline-variant/30 hover:border-primary/50 transition-colors">
                         <div className="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0">
                           <span className="material-symbols-outlined text-secondary-fixed-dim">schedule</span>

@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useStudentStore } from '@/store/student-store';
-import { getValidTimezone } from '@/lib/date-utils';
+import { getValidTimezone, toLocal } from '@/lib/date-utils';
 
 interface DashboardClientProps {
   initialData: any;
@@ -23,7 +23,30 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
 
   // Use store data if available, otherwise fallback to initialData for first render
   const data = dashboardData || initialData;
-  const { profile, upcomingClass, recentActivity, progressStats, activePlan } = data;
+  const { profile, recentActivity, progressStats, activePlan } = data;
+  
+  const tz = getValidTimezone(profile?.timezone);
+  const upcomingClass = data.upcomingClass;
+  const localUpcomingClass = upcomingClass && upcomingClass.date && upcomingClass.time 
+    ? { ...upcomingClass, ...toLocal(upcomingClass.date, upcomingClass.time, tz) } 
+    : upcomingClass;
+
+  let monthStr = '', dayStr = '', timeStr = '';
+  if (localUpcomingClass?.date) {
+    const [year, month, day] = localUpcomingClass.date.split('-');
+    const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    monthStr = dateObj.toLocaleDateString('en-US', { month: 'short' });
+    dayStr = dateObj.toLocaleDateString('en-US', { day: 'numeric' });
+    
+    // Format time to 12h if it's in 24h format
+    if (localUpcomingClass.time) {
+      const [h, m] = localUpcomingClass.time.split(':');
+      let hour = parseInt(h);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12 || 12;
+      timeStr = `${hour.toString().padStart(2, '0')}:${m} ${ampm}`;
+    }
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -62,26 +85,26 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
               </Link>
             </div>
             
-            {upcomingClass ? (
+            {localUpcomingClass ? (
               <div className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient border border-outline-variant/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-start gap-4">
                   <div className="bg-secondary-container text-on-secondary-container p-3 rounded-lg flex flex-col items-center justify-center min-w-[60px]">
-                    <span className="text-xs font-bold uppercase">{new Date(upcomingClass.date).toLocaleDateString('en-US', { month: 'short', timeZone: getValidTimezone(profile?.timezone) })}</span>
-                    <span className="text-xl font-bold">{new Date(upcomingClass.date).toLocaleDateString('en-US', { day: 'numeric', timeZone: getValidTimezone(profile?.timezone) })}</span>
+                    <span className="text-xs font-bold uppercase">{monthStr}</span>
+                    <span className="text-xl font-bold">{dayStr}</span>
                   </div>
                   <div>
-                    <h3 className="font-headline text-[20px] font-semibold text-on-surface mb-1">{upcomingClass.title}</h3>
-                    <p className="text-primary font-medium mb-1">{upcomingClass.courseTitle}</p>
+                    <h3 className="font-headline text-[20px] font-semibold text-on-surface mb-1">{localUpcomingClass.title}</h3>
+                    <p className="text-primary font-medium mb-1">{localUpcomingClass.courseTitle}</p>
                     <p className="text-on-surface-variant flex items-center gap-1 text-sm mb-2">
                       <span className="material-symbols-outlined text-[16px]">schedule</span> 
-                      {new Date(upcomingClass.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: getValidTimezone(profile?.timezone) })} ({upcomingClass.duration})
+                      {timeStr} ({localUpcomingClass.duration})
                     </p>
                     <p className="text-primary flex items-center gap-1 text-sm font-medium">
-                      <span className="material-symbols-outlined text-[16px]">person</span> {upcomingClass.tutor}
+                      <span className="material-symbols-outlined text-[16px]">person</span> {localUpcomingClass.tutor}
                     </p>
                   </div>
                 </div>
-                <Link href={upcomingClass.meetingLink || "#"} className="w-full sm:w-auto bg-primary text-on-primary px-6 py-3 rounded-lg font-label-sm font-medium hover:bg-primary/90 transition-colors text-center whitespace-nowrap shadow-sm">
+                <Link href={localUpcomingClass.meetingLink || "#"} className="w-full sm:w-auto bg-primary text-on-primary px-6 py-3 rounded-lg font-label-sm font-medium hover:bg-primary/90 transition-colors text-center whitespace-nowrap shadow-sm">
                   Join Class
                 </Link>
               </div>
