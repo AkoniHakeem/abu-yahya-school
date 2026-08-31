@@ -17,6 +17,10 @@ export default function AdminCoursesPage() {
   const [mediaList, setMediaList] = useState<{url: string, type: string}[]>([]);
   const [currentMediaUrl, setCurrentMediaUrl] = useState('');
   const [currentMediaType, setCurrentMediaType] = useState('video');
+  const [lessonList, setLessonList] = useState<{title: string, videoUrl: string, duration: string}[]>([]);
+  const [currentLessonTitle, setCurrentLessonTitle] = useState('');
+  const [currentLessonUrl, setCurrentLessonUrl] = useState('');
+  const [currentLessonDuration, setCurrentLessonDuration] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -34,15 +38,28 @@ export default function AdminCoursesPage() {
     setMediaList(mediaList.filter((_, i) => i !== index));
   };
 
+  const handleAddLesson = () => {
+    if (currentLessonTitle.trim()) {
+      setLessonList([...lessonList, { title: currentLessonTitle, videoUrl: currentLessonUrl, duration: currentLessonDuration }]);
+      setCurrentLessonTitle('');
+      setCurrentLessonUrl('');
+      setCurrentLessonDuration('');
+    }
+  };
+
+  const handleRemoveLesson = (index: number) => {
+    setLessonList(lessonList.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) return;
     
     setIsSubmitting(true);
     if (editingCourseId) {
-      await updateCourse(editingCourseId, { title, media: mediaList });
+      await updateCourse(editingCourseId, { title, media: mediaList, lessons: lessonList });
     } else {
-      await addCourse({ title, media: mediaList });
+      await addCourse({ title, media: mediaList, lessons: lessonList });
     }
     
     setIsSubmitting(false);
@@ -50,11 +67,13 @@ export default function AdminCoursesPage() {
     setEditingCourseId(null);
     setTitle('');
     setMediaList([]);
+    setLessonList([]);
   };
 
   const handleEdit = (course: any) => {
     setTitle(course.title);
     setMediaList(course.media || []);
+    setLessonList(course.lessons || []);
     setEditingCourseId(course.id);
     setIsModalOpen(true);
   };
@@ -74,6 +93,7 @@ export default function AdminCoursesPage() {
     setEditingCourseId(null);
     setTitle('');
     setMediaList([]);
+    setLessonList([]);
   };
 
   return (
@@ -95,6 +115,7 @@ export default function AdminCoursesPage() {
                 setEditingCourseId(null);
                 setTitle('');
                 setMediaList([]);
+                setLessonList([]);
                 setIsModalOpen(true);
               }}
             >
@@ -120,7 +141,7 @@ export default function AdminCoursesPage() {
                     <div>
                       <h4 className="font-headline text-[18px] font-bold text-on-surface mb-3">{course.title}</h4>
                       <div className="space-y-2">
-                      <p className="font-label-sm text-sm text-on-surface-variant">Media Files: {course.media?.length || 0}</p>
+                      <p className="font-label-sm text-sm text-on-surface-variant">Media Files: {course.media?.length || 0} | Lessons: {course.lessons?.length || 0}</p>
                       {course.media && course.media.length > 0 && (
                         <ul className="text-xs space-y-1">
                           {course.media.map((m: any, i: number) => (
@@ -221,6 +242,70 @@ export default function AdminCoursesPage() {
                           type="button" 
                           onClick={() => handleRemoveMedia(i)}
                           className="text-error hover:bg-error/10 p-1 rounded transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="border-t border-outline-variant pt-6">
+                <label className="block font-label-sm text-[14px] text-on-surface mb-4">Lessons / Modules</label>
+                
+                <div className="flex flex-col gap-3 mb-4 bg-surface-container-low p-4 rounded-lg border border-outline-variant/50">
+                  <div className="flex flex-col md:flex-row gap-3">
+                    <input 
+                      className="flex-grow bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
+                      placeholder="Lesson Title" 
+                      type="text" 
+                      value={currentLessonTitle}
+                      onChange={(e) => setCurrentLessonTitle(e.target.value)}
+                    />
+                    <input 
+                      className="w-full md:w-32 bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
+                      placeholder="Duration (e.g., 10m)" 
+                      type="text" 
+                      value={currentLessonDuration}
+                      onChange={(e) => setCurrentLessonDuration(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-3">
+                    <input 
+                      className="flex-grow bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
+                      placeholder="Video/Doc URL (Optional)" 
+                      type="url" 
+                      value={currentLessonUrl}
+                      onChange={(e) => setCurrentLessonUrl(e.target.value)}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={handleAddLesson}
+                      className="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg font-bold text-sm hover:bg-secondary-container/80 transition-colors w-full md:w-auto"
+                    >
+                      Add Lesson
+                    </button>
+                  </div>
+                </div>
+
+                {lessonList.length > 0 && (
+                  <ul className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                    {lessonList.map((l, i) => (
+                      <li key={i} className="flex justify-between items-center bg-surface-container-low p-3 rounded-lg border border-outline-variant/50">
+                        <div className="flex items-center gap-3">
+                          <span className="material-symbols-outlined text-primary text-sm">
+                            menu_book
+                          </span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold font-body">{l.title} {l.duration && <span className="font-normal text-on-surface-variant text-xs">({l.duration})</span>}</span>
+                            {l.videoUrl && <span className="text-xs text-primary truncate max-w-[200px]">{l.videoUrl}</span>}
+                          </div>
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => handleRemoveLesson(i)}
+                          className="text-error hover:bg-error/10 p-1 rounded transition-colors flex-shrink-0"
                         >
                           <span className="material-symbols-outlined text-sm">delete</span>
                         </button>

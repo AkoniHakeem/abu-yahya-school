@@ -13,7 +13,8 @@ export default function AdminEnrollmentsPage() {
   const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: () => {} });
   
   // Form State
-  const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [studentSearchTerm, setStudentSearchTerm] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingEnrollment, setEditingEnrollment] = useState<any>(null);
@@ -25,20 +26,39 @@ export default function AdminEnrollmentsPage() {
   }, [fetchEnrollments, fetchCourses, fetchUsers, courses.length, users.length]);
 
   const students = users.filter((u: any) => u.role === 'student');
+  const filteredStudents = students.filter((s: any) => 
+    s.name?.toLowerCase().includes(studentSearchTerm.toLowerCase()) || 
+    s.email?.toLowerCase().includes(studentSearchTerm.toLowerCase())
+  );
+
+  const toggleStudentSelection = (id: string) => {
+    setSelectedStudentIds(prev => 
+      prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]
+    );
+  };
+  
+  const handleSelectAllStudents = () => {
+    if (selectedStudentIds.length === filteredStudents.length && filteredStudents.length > 0) {
+      setSelectedStudentIds([]);
+    } else {
+      setSelectedStudentIds(filteredStudents.map((s: any) => s.id));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStudentId || !selectedCourseId) return;
+    if (selectedStudentIds.length === 0 || !selectedCourseId) return;
     
     setIsSubmitting(true);
     await enrollStudent({
-      studentId: selectedStudentId,
+      studentIds: selectedStudentIds,
       courseId: selectedCourseId
     });
     
     setIsSubmitting(false);
     setIsModalOpen(false);
-    setSelectedStudentId('');
+    setSelectedStudentIds([]);
+    setStudentSearchTerm('');
     setSelectedCourseId('');
   };
 
@@ -180,18 +200,50 @@ export default function AdminEnrollmentsPage() {
             
             <form className="p-6 space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label className="block font-label-sm text-[14px] text-on-surface mb-2">Select Student</label>
-                <select 
-                  className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body text-[16px] text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
-                  value={selectedStudentId}
-                  onChange={(e) => setSelectedStudentId(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>-- Select a Student --</option>
-                  {students.map((student: any) => (
-                    <option key={student.id} value={student.id}>{student.name} ({student.email})</option>
-                  ))}
-                </select>
+                <label className="block font-label-sm text-[14px] text-on-surface mb-2">Select Students</label>
+                <input 
+                  type="text" 
+                  placeholder="Search students..." 
+                  className="w-full mb-3 bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body text-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  value={studentSearchTerm}
+                  onChange={(e) => setStudentSearchTerm(e.target.value)}
+                />
+                <div className="bg-surface-container-low border border-outline-variant rounded-lg p-3 max-h-48 overflow-y-auto custom-scrollbar flex flex-col gap-2">
+                  <div className="flex items-center gap-3 pb-2 border-b border-outline-variant/50 mb-2">
+                    <input 
+                      type="checkbox" 
+                      id="selectAll" 
+                      className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary"
+                      checked={selectedStudentIds.length === filteredStudents.length && filteredStudents.length > 0}
+                      onChange={handleSelectAllStudents}
+                    />
+                    <label htmlFor="selectAll" className="font-label-sm text-sm text-on-surface select-none cursor-pointer">
+                      Select All
+                    </label>
+                  </div>
+                  {filteredStudents.length === 0 ? (
+                    <div className="text-on-surface-variant text-sm text-center py-4">No students found</div>
+                  ) : (
+                    filteredStudents.map((student: any) => (
+                      <div key={student.id} className="flex items-center gap-3 hover:bg-surface-container-highest p-1 rounded transition-colors">
+                        <input 
+                          type="checkbox" 
+                          id={`student-${student.id}`} 
+                          className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary"
+                          checked={selectedStudentIds.includes(student.id)}
+                          onChange={() => toggleStudentSelection(student.id)}
+                        />
+                        <label htmlFor={`student-${student.id}`} className="font-label-sm text-sm text-on-surface select-none cursor-pointer flex-grow flex flex-col">
+                          <span>{student.name}</span>
+                          <span className="text-xs text-on-surface-variant font-normal">{student.email}</span>
+                        </label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="text-xs text-on-surface-variant mt-2 text-right">
+                  {selectedStudentIds.length} student(s) selected
+                </div>
               </div>
 
               <div>
@@ -212,7 +264,11 @@ export default function AdminEnrollmentsPage() {
               <div className="pt-4 flex justify-end gap-3">
                 <button 
                   className="px-6 py-2 rounded-lg font-label-sm font-bold border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" 
-                  onClick={() => setIsModalOpen(false)} 
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setSelectedStudentIds([]);
+                    setStudentSearchTerm('');
+                  }} 
                   type="button"
                 >
                   Cancel
@@ -220,7 +276,7 @@ export default function AdminEnrollmentsPage() {
                 <button 
                   className="px-6 py-2 rounded-lg font-label-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2" 
                   type="submit"
-                  disabled={isSubmitting || !selectedStudentId || !selectedCourseId}
+                  disabled={isSubmitting || selectedStudentIds.length === 0 || !selectedCourseId}
                 >
                   {isSubmitting ? 'Enrolling...' : 'Confirm Enrollment'}
                 </button>
