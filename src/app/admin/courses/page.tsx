@@ -11,6 +11,7 @@ export default function AdminCoursesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: () => {} });
+  const [activeTab, setActiveTab] = useState<'basic' | 'lessons' | 'media'>('basic');
   
   // Form State
   const [title, setTitle] = useState('');
@@ -23,32 +24,67 @@ export default function AdminCoursesPage() {
   const [currentLessonDuration, setCurrentLessonDuration] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Edit item index (to know if we're editing an existing lesson/media inside the modal)
+  const [editingLessonIndex, setEditingLessonIndex] = useState<number | null>(null);
+  const [editingMediaIndex, setEditingMediaIndex] = useState<number | null>(null);
+
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
   const handleAddMedia = () => {
     if (currentMediaUrl.trim()) {
-      setMediaList([...mediaList, { url: currentMediaUrl, type: currentMediaType }]);
+      if (editingMediaIndex !== null) {
+        const updated = [...mediaList];
+        updated[editingMediaIndex] = { url: currentMediaUrl, type: currentMediaType };
+        setMediaList(updated);
+        setEditingMediaIndex(null);
+      } else {
+        setMediaList([...mediaList, { url: currentMediaUrl, type: currentMediaType }]);
+      }
       setCurrentMediaUrl('');
     }
   };
 
+  const handleEditMedia = (index: number) => {
+    const m = mediaList[index];
+    setCurrentMediaUrl(m.url);
+    setCurrentMediaType(m.type);
+    setEditingMediaIndex(index);
+  };
+
   const handleRemoveMedia = (index: number) => {
     setMediaList(mediaList.filter((_, i) => i !== index));
+    if (editingMediaIndex === index) setEditingMediaIndex(null);
   };
 
   const handleAddLesson = () => {
     if (currentLessonTitle.trim()) {
-      setLessonList([...lessonList, { title: currentLessonTitle, videoUrl: currentLessonUrl, duration: currentLessonDuration }]);
+      if (editingLessonIndex !== null) {
+        const updated = [...lessonList];
+        updated[editingLessonIndex] = { title: currentLessonTitle, videoUrl: currentLessonUrl, duration: currentLessonDuration };
+        setLessonList(updated);
+        setEditingLessonIndex(null);
+      } else {
+        setLessonList([...lessonList, { title: currentLessonTitle, videoUrl: currentLessonUrl, duration: currentLessonDuration }]);
+      }
       setCurrentLessonTitle('');
       setCurrentLessonUrl('');
       setCurrentLessonDuration('');
     }
   };
 
+  const handleEditLesson = (index: number) => {
+    const l = lessonList[index];
+    setCurrentLessonTitle(l.title);
+    setCurrentLessonUrl(l.videoUrl || '');
+    setCurrentLessonDuration(l.duration || '');
+    setEditingLessonIndex(index);
+  };
+
   const handleRemoveLesson = (index: number) => {
     setLessonList(lessonList.filter((_, i) => i !== index));
+    if (editingLessonIndex === index) setEditingLessonIndex(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,11 +99,7 @@ export default function AdminCoursesPage() {
     }
     
     setIsSubmitting(false);
-    setIsModalOpen(false);
-    setEditingCourseId(null);
-    setTitle('');
-    setMediaList([]);
-    setLessonList([]);
+    handleCloseModal();
   };
 
   const handleEdit = (course: any) => {
@@ -75,6 +107,7 @@ export default function AdminCoursesPage() {
     setMediaList(course.media || []);
     setLessonList(course.lessons || []);
     setEditingCourseId(course.id);
+    setActiveTab('basic');
     setIsModalOpen(true);
   };
 
@@ -94,6 +127,13 @@ export default function AdminCoursesPage() {
     setTitle('');
     setMediaList([]);
     setLessonList([]);
+    setCurrentLessonTitle('');
+    setCurrentLessonUrl('');
+    setCurrentLessonDuration('');
+    setEditingLessonIndex(null);
+    setCurrentMediaUrl('');
+    setEditingMediaIndex(null);
+    setActiveTab('basic');
   };
 
   return (
@@ -116,6 +156,7 @@ export default function AdminCoursesPage() {
                 setTitle('');
                 setMediaList([]);
                 setLessonList([]);
+                setActiveTab('basic');
                 setIsModalOpen(true);
               }}
             >
@@ -172,11 +213,12 @@ export default function AdminCoursesPage() {
         </div>
       </main>
 
-      {/* Create Course Modal */}
+      {/* Create/Edit Course Modal (Tabbed) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-background/50 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-surface-variant">
-            <div className="p-6 border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface-container-lowest z-10">
+          <div className="bg-surface-container-lowest rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-surface-variant">
+            {/* Header */}
+            <div className="p-6 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest">
               <h3 className="font-headline text-[24px] font-semibold text-primary">{editingCourseId ? 'Edit Course' : 'Create New Course'}</h3>
               <button 
                 className="text-on-surface-variant hover:text-error transition-colors p-1"
@@ -186,8 +228,35 @@ export default function AdminCoursesPage() {
               </button>
             </div>
             
-            <form className="p-6 space-y-6" onSubmit={handleSubmit}>
-              <div>
+            {/* Tabs Navigation */}
+            <div className="flex border-b border-surface-variant bg-surface-container-low px-6">
+              <button 
+                onClick={() => setActiveTab('basic')}
+                className={`px-4 py-3 font-label-sm font-bold text-[14px] border-b-2 cursor-pointer transition-colors ${activeTab === 'basic' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}`}
+              >
+                Basic Info
+              </button>
+              <button 
+                onClick={() => setActiveTab('lessons')}
+                className={`px-4 py-3 font-label-sm font-bold text-[14px] border-b-2 cursor-pointer transition-colors flex items-center gap-2 ${activeTab === 'lessons' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}`}
+              >
+                Lessons / Modules
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">{lessonList.length}</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('media')}
+                className={`px-4 py-3 font-label-sm font-bold text-[14px] border-b-2 cursor-pointer transition-colors flex items-center gap-2 ${activeTab === 'media' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}`}
+              >
+                Additional Media
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">{mediaList.length}</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form className="flex-1 overflow-y-auto p-6 bg-surface-container-lowest custom-scrollbar" onSubmit={handleSubmit}>
+              
+              {/* Tab 1: Basic Info */}
+              <div className={activeTab === 'basic' ? 'block' : 'hidden'}>
                 <label className="block font-label-sm text-[14px] text-on-surface mb-2">Course Title</label>
                 <input 
                   className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body text-[16px] text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
@@ -195,77 +264,33 @@ export default function AdminCoursesPage() {
                   type="text" 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  required
+                  required={activeTab === 'basic'}
                 />
-              </div>
-
-              <div className="border-t border-outline-variant pt-6">
-                <label className="block font-label-sm text-[14px] text-on-surface mb-4">Course Media Links (Optional)</label>
                 
-                <div className="flex gap-2 mb-4">
-                  <select 
-                    className="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
-                    value={currentMediaType}
-                    onChange={(e) => setCurrentMediaType(e.target.value)}
-                  >
-                    <option value="video">Video</option>
-                    <option value="audio">Audio</option>
-                    <option value="pdf">PDF</option>
-                  </select>
-                  <input 
-                    className="flex-grow bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
-                    placeholder="https://..." 
-                    type="url" 
-                    value={currentMediaUrl}
-                    onChange={(e) => setCurrentMediaUrl(e.target.value)}
-                  />
-                  <button 
-                    type="button" 
-                    onClick={handleAddMedia}
-                    className="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg font-bold text-sm hover:bg-secondary-container/80 transition-colors"
-                  >
-                    Add
-                  </button>
+                <div className="mt-8 bg-surface-container-low p-5 rounded-xl border border-surface-variant">
+                  <h4 className="font-headline text-md font-bold mb-2">Instructions</h4>
+                  <p className="text-sm text-on-surface-variant">
+                    Start by setting the title of the course. Then, use the <strong>Lessons / Modules</strong> tab to build the main curriculum structure (e.g. videos with durations).
+                    Use the <strong>Additional Media</strong> tab to attach supplementary files such as PDFs or audio files.
+                  </p>
                 </div>
-
-                {mediaList.length > 0 && (
-                  <ul className="space-y-2">
-                    {mediaList.map((m, i) => (
-                      <li key={i} className="flex justify-between items-center bg-surface-container-low p-3 rounded-lg border border-outline-variant/50">
-                        <div className="flex items-center gap-3">
-                          <span className="material-symbols-outlined text-primary text-sm">
-                            {m.type === 'video' ? 'play_circle' : m.type === 'audio' ? 'headphones' : 'picture_as_pdf'}
-                          </span>
-                          <span className="text-sm font-body truncate max-w-[300px]">{m.url}</span>
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={() => handleRemoveMedia(i)}
-                          className="text-error hover:bg-error/10 p-1 rounded transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
 
-              <div className="border-t border-outline-variant pt-6">
-                <label className="block font-label-sm text-[14px] text-on-surface mb-4">Lessons / Modules</label>
-                
-                <div className="flex flex-col gap-3 mb-4 bg-surface-container-low p-4 rounded-lg border border-outline-variant/50">
+              {/* Tab 2: Lessons / Modules */}
+              <div className={activeTab === 'lessons' ? 'block space-y-6' : 'hidden'}>
+                <div className="flex flex-col gap-3 bg-surface-container-low p-5 rounded-xl border border-outline-variant/50 shadow-sm">
+                  <h4 className="font-label-sm font-bold text-on-surface">{editingLessonIndex !== null ? 'Edit Lesson' : 'Add New Lesson'}</h4>
                   <div className="flex flex-col md:flex-row gap-3">
                     <input 
                       className="flex-grow bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
-                      placeholder="Lesson Title" 
+                      placeholder="Lesson Title (e.g. Module 1: Intro)" 
                       type="text" 
                       value={currentLessonTitle}
                       onChange={(e) => setCurrentLessonTitle(e.target.value)}
                     />
                     <input 
                       className="w-full md:w-32 bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
-                      placeholder="Duration (e.g., 10m)" 
+                      placeholder="Duration (e.g. 10m)" 
                       type="text" 
                       value={currentLessonDuration}
                       onChange={(e) => setCurrentLessonDuration(e.target.value)}
@@ -274,64 +299,187 @@ export default function AdminCoursesPage() {
                   <div className="flex flex-col md:flex-row gap-3">
                     <input 
                       className="flex-grow bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
-                      placeholder="Video/Doc URL (Optional)" 
+                      placeholder="Video URL (YouTube or Direct Link)" 
                       type="url" 
                       value={currentLessonUrl}
                       onChange={(e) => setCurrentLessonUrl(e.target.value)}
                     />
-                    <button 
-                      type="button" 
-                      onClick={handleAddLesson}
-                      className="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg font-bold text-sm hover:bg-secondary-container/80 transition-colors w-full md:w-auto"
-                    >
-                      Add Lesson
-                    </button>
+                    <div className="flex gap-2 w-full md:w-auto">
+                      {editingLessonIndex !== null && (
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setEditingLessonIndex(null);
+                            setCurrentLessonTitle('');
+                            setCurrentLessonUrl('');
+                            setCurrentLessonDuration('');
+                          }}
+                          className="bg-surface-variant text-on-surface px-4 py-2 rounded-lg font-bold text-sm hover:bg-surface-variant/80 transition-colors flex-1 md:flex-none"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button 
+                        type="button" 
+                        onClick={handleAddLesson}
+                        className="bg-primary text-on-primary px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex-1 md:flex-none"
+                        disabled={!currentLessonTitle.trim()}
+                      >
+                        {editingLessonIndex !== null ? 'Update' : 'Add Lesson'}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {lessonList.length > 0 && (
-                  <ul className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                    {lessonList.map((l, i) => (
-                      <li key={i} className="flex justify-between items-center bg-surface-container-low p-3 rounded-lg border border-outline-variant/50">
-                        <div className="flex items-center gap-3">
-                          <span className="material-symbols-outlined text-primary text-sm">
-                            menu_book
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold font-body">{l.title} {l.duration && <span className="font-normal text-on-surface-variant text-xs">({l.duration})</span>}</span>
-                            {l.videoUrl && <span className="text-xs text-primary truncate max-w-[200px]">{l.videoUrl}</span>}
+                {lessonList.length > 0 ? (
+                  <div className="bg-surface rounded-xl border border-surface-variant overflow-hidden">
+                    <ul className="divide-y divide-surface-variant">
+                      {lessonList.map((l, i) => (
+                        <li key={i} className={`flex justify-between items-center p-4 transition-colors ${editingLessonIndex === i ? 'bg-primary/5' : 'hover:bg-surface-container-lowest'}`}>
+                          <div className="flex items-start gap-4 overflow-hidden">
+                            <div className="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                              {i + 1}
+                            </div>
+                            <div className="flex flex-col overflow-hidden">
+                              <span className="text-sm font-bold font-body text-on-surface flex items-center gap-2">
+                                {l.title} 
+                                {l.duration && <span className="bg-surface-container-high px-2 py-0.5 rounded text-xs font-normal text-on-surface-variant">{l.duration}</span>}
+                              </span>
+                              {l.videoUrl && <span className="text-xs text-primary truncate max-w-full mt-1 opacity-80">{l.videoUrl}</span>}
+                            </div>
                           </div>
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={() => handleRemoveLesson(i)}
-                          className="text-error hover:bg-error/10 p-1 rounded transition-colors flex-shrink-0"
-                        >
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                          <div className="flex items-center gap-1 flex-shrink-0 ml-4">
+                            <button 
+                              type="button" 
+                              onClick={() => handleEditLesson(i)}
+                              className="text-on-surface-variant hover:text-primary hover:bg-primary/10 p-2 rounded-lg transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveLesson(i)}
+                              className="text-on-surface-variant hover:text-error hover:bg-error/10 p-2 rounded-lg transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="text-center py-10 border border-dashed border-outline-variant rounded-xl bg-surface">
+                    <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50 mb-2">menu_book</span>
+                    <p className="text-sm text-on-surface-variant">No lessons added yet.</p>
+                  </div>
                 )}
               </div>
 
-              <div className="pt-6 border-t border-surface-variant flex justify-end gap-3">
-                <button 
-                  className="px-6 py-2 rounded-lg font-label-sm font-bold border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" 
-                  onClick={handleCloseModal} 
-                  type="button"
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="px-6 py-2 rounded-lg font-label-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2" 
-                  type="submit"
-                  disabled={isSubmitting || !title}
-                >
-                  {isSubmitting ? (editingCourseId ? 'Saving...' : 'Creating...') : (editingCourseId ? 'Save Changes' : 'Create Course')}
-                </button>
+              {/* Tab 3: Additional Media */}
+              <div className={activeTab === 'media' ? 'block space-y-6' : 'hidden'}>
+                <div className="flex flex-col gap-3 bg-surface-container-low p-5 rounded-xl border border-outline-variant/50 shadow-sm">
+                  <h4 className="font-label-sm font-bold text-on-surface">{editingMediaIndex !== null ? 'Edit Media' : 'Add Media Resource'}</h4>
+                  <div className="flex flex-col md:flex-row gap-2">
+                    <select 
+                      className="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary w-full md:w-28"
+                      value={currentMediaType}
+                      onChange={(e) => setCurrentMediaType(e.target.value)}
+                    >
+                      <option value="video">Video</option>
+                      <option value="audio">Audio</option>
+                      <option value="pdf">PDF</option>
+                    </select>
+                    <input 
+                      className="flex-grow bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body text-sm outline-none focus:border-primary"
+                      placeholder="https://..." 
+                      type="url" 
+                      value={currentMediaUrl}
+                      onChange={(e) => setCurrentMediaUrl(e.target.value)}
+                    />
+                    <div className="flex gap-2 w-full md:w-auto">
+                      {editingMediaIndex !== null && (
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setEditingMediaIndex(null);
+                            setCurrentMediaUrl('');
+                          }}
+                          className="bg-surface-variant text-on-surface px-4 py-2 rounded-lg font-bold text-sm hover:bg-surface-variant/80 transition-colors flex-1 md:flex-none"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button 
+                        type="button" 
+                        onClick={handleAddMedia}
+                        className="bg-primary text-on-primary px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex-1 md:flex-none"
+                        disabled={!currentMediaUrl.trim()}
+                      >
+                        {editingMediaIndex !== null ? 'Update' : 'Add'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {mediaList.length > 0 ? (
+                  <div className="bg-surface rounded-xl border border-surface-variant overflow-hidden">
+                    <ul className="divide-y divide-surface-variant">
+                      {mediaList.map((m, i) => (
+                        <li key={i} className={`flex justify-between items-center p-4 transition-colors ${editingMediaIndex === i ? 'bg-primary/5' : 'hover:bg-surface-container-lowest'}`}>
+                          <div className="flex items-center gap-4 overflow-hidden">
+                            <span className={`material-symbols-outlined text-[24px] ${m.type === 'video' ? 'text-blue-500' : m.type === 'pdf' ? 'text-red-500' : 'text-purple-500'}`}>
+                              {m.type === 'video' ? 'play_circle' : m.type === 'audio' ? 'headphones' : 'picture_as_pdf'}
+                            </span>
+                            <span className="text-sm font-body text-on-surface truncate max-w-[400px]">{m.url}</span>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0 ml-4">
+                            <button 
+                              type="button" 
+                              onClick={() => handleEditMedia(i)}
+                              className="text-on-surface-variant hover:text-primary hover:bg-primary/10 p-2 rounded-lg transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveMedia(i)}
+                              className="text-on-surface-variant hover:text-error hover:bg-error/10 p-2 rounded-lg transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="text-center py-10 border border-dashed border-outline-variant rounded-xl bg-surface">
+                    <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50 mb-2">folder_open</span>
+                    <p className="text-sm text-on-surface-variant">No media resources added yet.</p>
+                  </div>
+                )}
               </div>
+
             </form>
+
+            {/* Footer Actions */}
+            <div className="p-6 border-t border-surface-variant flex justify-end gap-3 bg-surface-container-lowest">
+              <button 
+                className="px-6 py-2.5 rounded-lg font-label-sm font-bold border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors" 
+                onClick={handleCloseModal} 
+                type="button"
+              >
+                Cancel
+              </button>
+              <button 
+                className="px-6 py-2.5 rounded-lg font-label-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2" 
+                onClick={handleSubmit}
+                disabled={isSubmitting || !title}
+              >
+                {isSubmitting ? (editingCourseId ? 'Saving...' : 'Creating...') : (editingCourseId ? 'Save Changes' : 'Create Course')}
+              </button>
+            </div>
           </div>
         </div>
       )}

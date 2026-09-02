@@ -6,7 +6,7 @@ import TutorSidebar from '@/components/TutorSidebar';
 import TutorMobileNav from '@/components/TutorMobileNav';
 import { useTutorStore, TutorClass } from '@/store/tutor-store';
 import { fetchAPI } from '@/lib/api-client';
-import { toUTC, toLocal } from '@/lib/date-utils';
+import { toUTC, toLocal, formatTo12Hour } from '@/lib/date-utils';
 
 export default function TutorSchedulingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -214,8 +214,8 @@ export default function TutorSchedulingPage() {
                         <span className={`font-label-sm text-[12px] sm:text-[14px] absolute top-1 sm:top-2 right-1 sm:right-2 ${isToday ? 'text-primary font-bold' : 'text-on-surface'}`}>{day}</span>
                         <div className="mt-4 sm:mt-6 flex flex-col gap-1 overflow-hidden h-full">
                           {dayClasses.map((cls, idx) => (
-                            <div key={cls.id || idx} className="bg-secondary-container text-on-secondary-container text-[10px] sm:text-xs p-1 rounded font-body truncate leading-tight" title={`${cls.time} - ${cls.title} ${cls.courseTitle ? `(${cls.courseTitle})` : ''}`}>
-                              <span className="font-semibold">{cls.time}</span> <span className="hidden sm:inline">- {cls.title}</span>
+                            <div key={cls.id || idx} className="bg-secondary-container text-on-secondary-container text-[10px] sm:text-xs p-1 rounded font-body truncate leading-tight" title={`${formatTo12Hour(cls.time)} - ${cls.title} ${cls.courseTitle ? `(${cls.courseTitle})` : ''}`}>
+                              <span className="font-semibold">{formatTo12Hour(cls.time)}</span> <span className="hidden sm:inline">- {cls.title}</span>
                             </div>
                           ))}
                         </div>
@@ -248,7 +248,7 @@ export default function TutorSchedulingPage() {
                             <span className="text-xs font-semibold px-2 py-1 rounded bg-secondary-container text-on-secondary-container">Upcoming</span>
                           </div>
                           <p className="font-body text-xs text-primary font-medium mb-1">{session.courseTitle}</p>
-                          <p className="font-body text-sm text-on-surface-variant">{session.date ? `${session.date} | ` : ''}{session.time}</p>
+                          <p className="font-body text-sm text-on-surface-variant">{session.date ? `${session.date} | ` : ''}{formatTo12Hour(session.time)}</p>
                           <div className="mt-2 flex gap-2">
                             <span className="text-xs bg-surface-container-high px-2 py-1 rounded text-on-surface-variant">
                               {session.type === 'Live Class' ? `${session.studentCount} Students` : session.studentName || '1-on-1'}

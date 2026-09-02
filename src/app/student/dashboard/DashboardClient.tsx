@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useStudentStore } from '@/store/student-store';
-import { getValidTimezone, toLocal } from '@/lib/date-utils';
+import { getValidTimezone, toLocal, formatTo12Hour } from '@/lib/date-utils';
 
 interface DashboardClientProps {
   initialData: any;
@@ -38,13 +38,9 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
     monthStr = dateObj.toLocaleDateString('en-US', { month: 'short' });
     dayStr = dateObj.toLocaleDateString('en-US', { day: 'numeric' });
     
-    // Format time to 12h if it's in 24h format
+    // Format time to 12h
     if (localUpcomingClass.time) {
-      const [h, m] = localUpcomingClass.time.split(':');
-      let hour = parseInt(h);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      hour = hour % 12 || 12;
-      timeStr = `${hour.toString().padStart(2, '0')}:${m} ${ampm}`;
+      timeStr = formatTo12Hour(localUpcomingClass.time);
     }
   }
 

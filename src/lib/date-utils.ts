@@ -81,3 +81,13 @@ export const formatToLocalString = (utcDateString: string, utcTimeString: string
     return `${utcDateString} at ${utcTimeString}`;
   }
 };
+
+export const formatTo12Hour = (timeStr: string) => {
+  if (!timeStr) return timeStr;
+  const [h, m] = timeStr.split(':');
+  if (!h || !m) return timeStr;
+  let hour = parseInt(h);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12 || 12;
+  return `${hour.toString().padStart(2, '0')}:${m} ${ampm}`;
+};

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getValidTimezone, toLocal } from '@/lib/date-utils';
+import { getValidTimezone, toLocal, formatTo12Hour } from '@/lib/date-utils';
 
 export default function ClientScheduleView({ schedule, profileTimezone }: { schedule: any[], profileTimezone?: string }) {
   const [groupedSchedule, setGroupedSchedule] = useState<any>({});
@@ -67,7 +67,7 @@ export default function ClientScheduleView({ schedule, profileTimezone }: { sche
                     <div className="flex items-start gap-4">
                       <div className="hidden sm:flex flex-col items-center justify-center min-w-[80px] border-r border-outline-variant/30 pr-4">
                         <span className="font-headline text-[24px] font-bold text-primary">
-                          {session.time}
+                          {formatTo12Hour(session.time)}
                         </span>
                         <span className="text-xs text-on-surface-variant uppercase tracking-wider">{session.duration}</span>
                       </div>
@@ -87,7 +87,7 @@ export default function ClientScheduleView({ schedule, profileTimezone }: { sche
                         <p className="text-on-surface-variant flex items-center gap-2 text-sm">
                           <span className="material-symbols-outlined text-[16px]">person</span> {session.tutor}
                           <span className="sm:hidden material-symbols-outlined text-[16px] ml-2">schedule</span>
-                          <span className="sm:hidden">{session.time}</span>
+                          <span className="sm:hidden">{formatTo12Hour(session.time)}</span>
                         </p>
                       </div>
                     </div>

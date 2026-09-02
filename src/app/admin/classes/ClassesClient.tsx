@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAdminStore } from '@/store/admin-store';
 import AlertModal from '@/components/shared/AlertModal';
 import ConfirmModal from '@/components/shared/ConfirmModal';
-import { toLocal } from '@/lib/date-utils';
+import { toLocal, formatTo12Hour } from '@/lib/date-utils';
 
 export default function ClassesClient() {
   const { classes, users, courses, fetchClasses, fetchUsers, fetchCourses, addClass, updateClass, deleteClass, isLoading } = useAdminStore();
@@ -241,7 +241,7 @@ export default function ClassesClient() {
                             return (
                             <div key={sched.id || sIdx} className="flex justify-between items-center text-xs p-2 bg-surface rounded">
                               <div>
-                                <p className="font-bold text-on-surface">{local.date || 'No Date'} at {local.time || 'No Time'} (Local)</p>
+                                <p className="font-bold text-on-surface">{local.date || 'No Date'} at {local.time ? formatTo12Hour(local.time) : 'No Time'} (Local)</p>
                               </div>
                               {sched.classLink && (
                                 <a href={sched.classLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">Link</a>
@@ -290,7 +290,7 @@ export default function ClassesClient() {
                 <div key={sched.id || sIdx} className="flex justify-between items-center p-4 border border-outline-variant/30 rounded-lg hover:border-primary/50 transition-colors bg-surface">
                   <div>
                     <span className="text-sm font-bold text-primary mb-1 block">{local.date || 'No Date'}</span>
-                    <h4 className="font-bold text-on-surface">{local.time || 'No Time'} (Local)</h4>
+                    <h4 className="font-bold text-on-surface">{local.time ? formatTo12Hour(local.time) : 'No Time'} (Local)</h4>
                   </div>
                   {sched.classLink && (
                     <a href={sched.classLink} target="_blank" rel="noopener noreferrer" className="bg-primary/10 text-primary hover:bg-primary hover:text-on-primary px-4 py-2 rounded-lg text-sm font-medium transition-colors">

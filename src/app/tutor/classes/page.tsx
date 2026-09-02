@@ -5,7 +5,7 @@ import TutorSidebar from '@/components/TutorSidebar';
 import TutorMobileNav from '@/components/TutorMobileNav';
 import { useTutorStore } from '@/store/tutor-store';
 import ConfirmModal from '@/components/shared/ConfirmModal';
-import { toUTC, toLocal } from '@/lib/date-utils';
+import { toUTC, toLocal, formatTo12Hour } from '@/lib/date-utils';
 
 export default function TutorClassroomPage() {
   const { assignedClasses, fetchAssignedClasses, createSchedule, updateSchedule, deleteSchedule, settings, fetchSettings } = useTutorStore();
@@ -209,7 +209,7 @@ export default function TutorClassroomPage() {
                                       <span className="material-symbols-outlined text-[18px]">schedule</span>
                                     </div>
                                     <div>
-                                      <p className="text-sm font-bold text-on-surface">{local.date || 'No date'} at {local.time}</p>
+                                      <p className="text-sm font-bold text-on-surface">{local.date || 'No date'} at {formatTo12Hour(local.time)}</p>
                                       {sched.classLink && (
                                         <a href={sched.classLink} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate block max-w-[200px]">
                                           {sched.classLink}
